@@ -535,14 +535,6 @@ function setupRoutineCreator() {
       <div class="form-inputs">
         <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
         <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
-        <select class="input-select stretch-anim">
-          <option value="neck-tilt">頸部側折</option>
-          <option value="shoulder-roll">肩部繞環</option>
-          <option value="chest-opener">站立擴胸</option>
-          <option value="side-stretch">體側伸展</option>
-          <option value="forward-fold">前彎折疊</option>
-          <option value="default">預設呼吸環</option>
-        </select>
       </div>
       <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
     `;
@@ -576,7 +568,7 @@ function setupRoutineCreator() {
     items.forEach((item, index) => {
       const name = item.querySelector('.stretch-name').value.trim();
       const duration = parseInt(item.querySelector('.stretch-duration').value);
-      const animationType = item.querySelector('.stretch-anim').value;
+      const animationType = 'default';
       
       // 自動生成中文說明
       const instructions = [
