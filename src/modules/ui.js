@@ -765,11 +765,7 @@ function setupRoutineCreator() {
       } else {
         instructions.push(`請做好準備，調整成適合「${name}」的舒適姿勢。`);
       }
-      instructions.push(
-        `保持身體拉伸並維持此動作 ${duration} 秒。`,
-        `過程中請維持緩慢、平穩且深沉的吸吐。`,
-        `三，二，一，動作結束，請慢慢放鬆身體。`
-      );
+
 
       // 自動生成語音播報內容，將多行以逗號連接
       const ttsText =
