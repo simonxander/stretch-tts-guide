@@ -1,0 +1,22 @@
+{
+  "name": "ZenStretch - 伸展正念引導",
+  "short_name": "ZenStretch",
+  "description": "簡約舒適的伸展正念語音引導服務",
+  "start_url": "/stretch-tts-guide/",
+  "display": "standalone",
+  "background_color": "#121413",
+  "theme_color": "#8f9f95",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
