@@ -3,6 +3,7 @@ export const DEFAULT_ROUTINES = [
   {
     id: 'desk-relief',
     name: '上班族肩頸放鬆',
+    theme: 'sage',
     description:
       '針對長時間坐在電腦前的上班族所設計。幫助緩解頸部、肩部和上背部因靜止不動而累積的緊繃與酸痛。',
     durationText: '2.5 分鐘',
@@ -106,6 +107,7 @@ export const DEFAULT_ROUTINES = [
   {
     id: 'bedtime-yoga',
     name: '睡前放鬆伸展',
+    theme: 'lavender',
     description:
       '結合深呼吸與緩慢的肌肉拉伸，引導大腦與身體釋放整天累積的壓力，為 restful 睡眠做好準備。',
     durationText: '2 分鐘',
@@ -231,4 +233,20 @@ export function deleteCustomRoutine(id) {
   } catch (e) {
     console.error('Error deleting custom routine:', e);
   }
+}
+
+// Helper: Get a stable theme for a routine
+export function getRoutineTheme(routine) {
+  if (routine && routine.theme) {
+    return routine.theme;
+  }
+  // Assign stable theme based on ID
+  const themes = ['sage', 'clay', 'lavender', 'rose', 'gold', 'ocean'];
+  const idStr = (routine && routine.id) || '';
+  let hash = 0;
+  for (let i = 0; i < idStr.length; i++) {
+    hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % themes.length;
+  return themes[index];
 }

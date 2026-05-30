@@ -109,3 +109,86 @@ body {
   background: var(--scrollbar-thumb);
   border-radius: var(--radius-sm);
 }
+
+/* --- Routine Accent Themes --- */
+/* Default / Light Mode Accent overrides */
+.routine-theme-sage {
+  --accent-primary: #759283;
+  --accent-primary-hover: #5d786a;
+  --accent-soft: #edf3f0;
+  --accent-soft-hover: #dfeae4;
+}
+.routine-theme-clay {
+  --accent-primary: #c28e75;
+  --accent-primary-hover: #aa775f;
+  --accent-soft: #f7ede8;
+  --accent-soft-hover: #ebdcd3;
+}
+.routine-theme-lavender {
+  --accent-primary: #8a94b8;
+  --accent-primary-hover: #717b9f;
+  --accent-soft: #f0f2f7;
+  --accent-soft-hover: #e0e3ee;
+}
+.routine-theme-rose {
+  --accent-primary: #b88a94;
+  --accent-primary-hover: #9f717b;
+  --accent-soft: #f7eff0;
+  --accent-soft-hover: #eedee0;
+}
+.routine-theme-gold {
+  --accent-primary: #b39768;
+  --accent-primary-hover: #977d50;
+  --accent-soft: #f6f2e9;
+  --accent-soft-hover: #ede4d3;
+}
+.routine-theme-ocean {
+  --accent-primary: #6c99a6;
+  --accent-primary-hover: #537e8b;
+  --accent-soft: #edf4f6;
+  --accent-soft-hover: #dbeef2;
+}
+
+/* Dark Mode Accent overrides */
+.theme-dark .routine-theme-sage,
+.theme-dark.routine-theme-sage {
+  --accent-primary: #94b4a4;
+  --accent-primary-hover: #adc8bb;
+  --accent-soft: #232a27;
+  --accent-soft-hover: #2e3834;
+}
+.theme-dark .routine-theme-clay,
+.theme-dark.routine-theme-clay {
+  --accent-primary: #d4a38c;
+  --accent-primary-hover: #e2b7a2;
+  --accent-soft: #2d2420;
+  --accent-soft-hover: #3a2e2a;
+}
+.theme-dark .routine-theme-lavender,
+.theme-dark.routine-theme-lavender {
+  --accent-primary: #a3abc7;
+  --accent-primary-hover: #b8bed9;
+  --accent-soft: #242731;
+  --accent-soft-hover: #2f3340;
+}
+.theme-dark .routine-theme-rose,
+.theme-dark.routine-theme-rose {
+  --accent-primary: #c7a3ac;
+  --accent-primary-hover: #d9b8c0;
+  --accent-soft: #312427;
+  --accent-soft-hover: #402f32;
+}
+.theme-dark .routine-theme-gold,
+.theme-dark.routine-theme-gold {
+  --accent-primary: #c7ad7f;
+  --accent-primary-hover: #dabf92;
+  --accent-soft: #2f2b21;
+  --accent-soft-hover: #3d382b;
+}
+.theme-dark .routine-theme-ocean,
+.theme-dark.routine-theme-ocean {
+  --accent-primary: #8ab3bf;
+  --accent-primary-hover: #9fc6d2;
+  --accent-soft: #202b2e;
+  --accent-soft-hover: #2a373b;
+}

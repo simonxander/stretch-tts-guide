@@ -88,7 +88,8 @@ function renderRoutinesList() {
 
   routinesList.forEach((routine) => {
     const card = document.createElement('div');
-    card.className = `routine-card card fade-in`;
+    const theme = stretches.getRoutineTheme(routine);
+    card.className = `routine-card card fade-in routine-theme-${theme}`;
 
     // 標題區域
     const header = document.createElement('div');
@@ -184,6 +185,32 @@ function showScreen(screenId) {
 
 // --- 計時器引擎狀態更新回呼 ---
 
+// 套用當前動作流程的主題顏色
+function applyActiveRoutineTheme(routine) {
+  if (!routine) return;
+  const theme = stretches.getRoutineTheme(routine);
+  const themeClasses = [
+    'routine-theme-sage',
+    'routine-theme-clay',
+    'routine-theme-lavender',
+    'routine-theme-rose',
+    'routine-theme-gold',
+    'routine-theme-ocean',
+  ];
+
+  const workoutScreen = document.getElementById('screen-workout');
+  const summaryScreen = document.getElementById('screen-summary');
+
+  if (workoutScreen) {
+    themeClasses.forEach((c) => workoutScreen.classList.remove(c));
+    workoutScreen.classList.add(`routine-theme-${theme}`);
+  }
+  if (summaryScreen) {
+    themeClasses.forEach((c) => summaryScreen.classList.remove(c));
+    summaryScreen.classList.add(`routine-theme-${theme}`);
+  }
+}
+
 function handleEngineStateChange(state, details) {
   if (state === engine.States.IDLE) {
     showScreen('home');
@@ -191,6 +218,7 @@ function handleEngineStateChange(state, details) {
   }
 
   showScreen('workout');
+  applyActiveRoutineTheme(details.routine);
 
   // 更新步驟標題與顯示
   const routineNameEl = document.getElementById('workout-routine-name');
@@ -747,10 +775,14 @@ function setupRoutineCreator() {
       (routineDescInput && routineDescInput.value.trim()) ||
       `包含 ${steps.length} 個動作的自訂伸展流程。`;
 
+    const selectedThemeEl = form.querySelector('input[name="routine-theme"]:checked');
+    const theme = selectedThemeEl ? selectedThemeEl.value : 'sage';
+
     const newRoutine = {
       id: editingRoutineId || undefined,
       name: routineName,
       description: description,
+      theme: theme,
       durationText: '',
       steps,
     };
@@ -817,6 +849,15 @@ function openEditRoutineModal(routine) {
     });
   }
 
+  // 設定編輯中的主題顏色選取
+  const theme = stretches.getRoutineTheme(routine);
+  const themeRadio = document.querySelector(
+    `#form-custom-routine input[name="routine-theme"][value="${theme}"]`
+  );
+  if (themeRadio) {
+    themeRadio.checked = true;
+  }
+
   modals.create.classList.add('active');
 }
 
@@ -837,6 +878,7 @@ function openShareModal(routine) {
     name: routine.name,
     description: routine.description,
     durationText: routine.durationText,
+    theme: stretches.getRoutineTheme(routine),
     steps: routine.steps.map((s) => ({
       name: s.name,
       duration: s.duration,

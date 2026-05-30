@@ -248,15 +248,7 @@ p {
   left: 0;
   width: 100%;
   height: 4px;
-  background-color: var(--accent-lavender);
-}
-
-.routine-card:nth-child(2n)::before {
   background-color: var(--accent-primary);
-}
-
-.routine-card:nth-child(3n)::before {
-  background-color: var(--accent-peach);
 }
 
 .routine-card:hover {
@@ -1269,4 +1261,60 @@ p {
     width: 44px;
     height: 44px;
   }
+}
+
+/* Theme Color Selector Styles */
+.theme-color-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.theme-color-option {
+  cursor: pointer;
+  position: relative;
+}
+
+.theme-color-option input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.color-circle {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.bg-sage {
+  background-color: #759283;
+}
+.bg-clay {
+  background-color: #c28e75;
+}
+.bg-lavender {
+  background-color: #8a94b8;
+}
+.bg-rose {
+  background-color: #b88a94;
+}
+.bg-gold {
+  background-color: #b39768;
+}
+.bg-ocean {
+  background-color: #6c99a6;
+}
+
+.theme-color-option input[type='radio']:checked + .color-circle {
+  transform: scale(1.15);
+  border-color: var(--border-focus);
+  box-shadow:
+    0 0 0 3px var(--bg-secondary) inset,
+    0 4px 10px rgba(0, 0, 0, 0.15);
 }
