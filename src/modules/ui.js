@@ -21,6 +21,9 @@ const modals = {
 // 圓形計時環常數
 const TIMER_RING_DASHARRAY = 282.7; // 2 * Math.PI * 45
 
+// 自訂流程編輯中的 ID
+let editingRoutineId = null;
+
 // 初始化 UI
 export function initUI() {
   setupThemeToggle();
@@ -55,6 +58,17 @@ export function initUI() {
   // 檢查 URL 雜湊 (Hash) 中是否含有分享的動作資料
   handleSharedUrlImport();
 
+  // 綁定「隱藏內建流程」切換開關
+  const hidePresetsCheckbox = document.getElementById('toggle-hide-presets');
+  if (hidePresetsCheckbox) {
+    const savedHidePresets = localStorage.getItem('zenstretch_hide_presets') === 'true';
+    hidePresetsCheckbox.checked = savedHidePresets;
+    hidePresetsCheckbox.addEventListener('change', (e) => {
+      localStorage.setItem('zenstretch_hide_presets', e.target.checked);
+      renderRoutinesList();
+    });
+  }
+
   // 繪製流程列表
   renderRoutinesList();
 }
@@ -64,7 +78,12 @@ function renderRoutinesList() {
   const container = document.getElementById('routines-list');
   if (!container) return;
   
-  const routinesList = stretches.getAllRoutines();
+  const hidePresets = localStorage.getItem('zenstretch_hide_presets') === 'true';
+  let routinesList = stretches.getAllRoutines();
+  if (hidePresets) {
+    routinesList = routinesList.filter(r => r.isCustom);
+  }
+  
   container.innerHTML = '';
   
   routinesList.forEach(routine => {
@@ -106,8 +125,20 @@ function renderRoutinesList() {
     });
     actions.appendChild(shareBtn);
     
-    // 自訂動作流程的刪除按鈕
+    // 自訂動作流程的編輯與刪除按鈕
     if (routine.isCustom) {
+      // 編輯按鈕
+      const editBtn = document.createElement('button');
+      editBtn.className = 'routine-action-btn';
+      editBtn.title = '編輯此流程';
+      editBtn.innerHTML = '✏️';
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditRoutineModal(routine);
+      });
+      actions.appendChild(editBtn);
+
+      // 刪除按鈕
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'routine-action-btn';
       deleteBtn.title = '刪除此流程';
@@ -462,23 +493,60 @@ function setupModals() {
   createBtn.addEventListener('click', () => modals.create.classList.add('active'));
   importBtn.addEventListener('click', () => modals.import.classList.add('active'));
   
+  // 重置自訂流程表單狀態
+  const resetCreateModalState = () => {
+    editingRoutineId = null;
+    const modalTitle = document.getElementById('modal-create-title');
+    if (modalTitle) modalTitle.textContent = '建立自訂伸展流程';
+    const form = document.getElementById('form-custom-routine');
+    if (form) form.reset();
+    const list = document.getElementById('builder-stretches-list');
+    if (list) {
+      list.innerHTML = '';
+      // 補上一個預設空白動作步驟
+      const item = document.createElement('div');
+      item.className = 'builder-stretch-item';
+      item.innerHTML = `
+        <span class="drag-handle">☰</span>
+        <div class="form-inputs">
+          <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
+          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
+        </div>
+        <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
+      `;
+      item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
+      list.appendChild(item);
+    }
+  };
+
   // 關閉視窗
   const hideModals = () => {
     Object.values(modals).forEach(m => m.classList.remove('active'));
   };
   
-  closeCreateBtn.addEventListener('click', hideModals);
+  closeCreateBtn.addEventListener('click', () => {
+    resetCreateModalState();
+    hideModals();
+  });
   closeImportBtn.addEventListener('click', hideModals);
   closeShareBtn.addEventListener('click', hideModals);
   
-  cancelCreateBtn.addEventListener('click', hideModals);
+  cancelCreateBtn.addEventListener('click', () => {
+    resetCreateModalState();
+    hideModals();
+  });
   cancelImportBtn.addEventListener('click', hideModals);
   closeShareBtn2.addEventListener('click', hideModals);
   
   // 點擊背景遮罩關閉
   Object.values(modals).forEach(m => {
     m.addEventListener('click', (e) => {
-      if (e.target === m) hideModals();
+      if (e.target === m) {
+        if (m === modals.create) {
+          resetCreateModalState();
+        }
+        hideModals();
+      }
     });
   });
   
@@ -602,9 +670,13 @@ function setupRoutineCreator() {
       });
     });
     
+    const routineDescInput = document.getElementById('custom-routine-desc');
+    const description = (routineDescInput && routineDescInput.value.trim()) || `包含 ${steps.length} 個動作的自訂伸展流程。`;
+
     const newRoutine = {
+      id: editingRoutineId || undefined,
       name: routineName,
-      description: `包含 ${steps.length} 個動作的自訂伸展流程。`,
+      description: description,
       durationText: `${Math.round(steps.reduce((sum, s) => sum + s.duration, 0) / 60 * 10) / 10} 分鐘`,
       steps
     };
@@ -613,11 +685,44 @@ function setupRoutineCreator() {
     renderRoutinesList();
     
     // 重設表單與視窗關閉
-    form.reset();
-    list.innerHTML = '';
-    addStretchStep();
+    resetCreateModalState();
     modals.create.classList.remove('active');
   });
+}
+
+// 開啟並填入編輯視窗資料
+function openEditRoutineModal(routine) {
+  editingRoutineId = routine.id;
+  
+  const modalTitle = document.getElementById('modal-create-title');
+  if (modalTitle) modalTitle.textContent = '編輯自訂伸展流程';
+  
+  const nameInput = document.getElementById('custom-routine-name');
+  if (nameInput) nameInput.value = routine.name;
+  
+  const descInput = document.getElementById('custom-routine-desc');
+  if (descInput) descInput.value = routine.description || '';
+  
+  const list = document.getElementById('builder-stretches-list');
+  if (list) {
+    list.innerHTML = '';
+    routine.steps.forEach((step, index) => {
+      const item = document.createElement('div');
+      item.className = 'builder-stretch-item';
+      item.innerHTML = `
+        <span class="drag-handle">☰</span>
+        <div class="form-inputs">
+          <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)" value="${escapeHTML(step.name)}">
+          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
+        </div>
+        <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
+      `;
+      item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
+      list.appendChild(item);
+    });
+  }
+  
+  modals.create.classList.add('active');
 }
 
 // --- 動作流程序列化與 QR 分享 ---
