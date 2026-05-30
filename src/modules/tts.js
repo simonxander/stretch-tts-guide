@@ -178,6 +178,11 @@ export function playChime(frequency = 587.33, type = 'sine', duration = 0.5) {
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
+
+    // Clean up AudioContext to avoid hardware limit errors in browser
+    osc.onended = () => {
+      ctx.close();
+    };
   } catch (err) {
     console.error('Error playing sound chime:', err);
   }

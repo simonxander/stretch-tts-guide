@@ -64,6 +64,15 @@ export function getStepIndex() {
   return currentStepIndex;
 }
 
+// Helper: Swap "左" and "右" in a string
+function swapLeftRight(text) {
+  if (!text) return text;
+  return text
+    .replace(/左/g, '__TEMP_LEFT__')
+    .replace(/右/g, '左')
+    .replace(/__TEMP_LEFT__/g, '右');
+}
+
 // Start a routine
 export function startWorkout(routine) {
   stopWorkout();
@@ -77,56 +86,59 @@ export function startWorkout(routine) {
     const executions = [];
     if (bilateral) {
       for (let r = 1; r <= repeat; r++) {
-        executions.push({ side: '右側', set: r, totalSets: repeat });
+        executions.push({ side: '右側', set: r, totalSets: repeat, isOpposite: false });
       }
       for (let r = 1; r <= repeat; r++) {
-        executions.push({ side: '左側', set: r, totalSets: repeat });
+        executions.push({ side: '左側', set: r, totalSets: repeat, isOpposite: true });
       }
     } else {
       for (let r = 1; r <= repeat; r++) {
-        executions.push({ side: null, set: r, totalSets: repeat });
+        executions.push({ side: null, set: r, totalSets: repeat, isOpposite: false });
       }
     }
 
     executions.forEach((exec, idx) => {
       const setSuffix = exec.totalSets > 1 ? ` (第 ${exec.set}/${exec.totalSets} 組)` : '';
-      const sideSuffix = exec.side ? ` (${exec.side})` : '';
+      
+      const baseName = exec.isOpposite ? swapLeftRight(step.name) : step.name;
+      const name = `${baseName}${setSuffix}`;
 
       const setSpeech = exec.totalSets > 1 ? `，第 ${exec.set} 組` : '';
-      const ttsName = exec.side
-        ? `${step.name}，${exec.side}${setSpeech}`
-        : `${step.name}${setSpeech}`;
+      const ttsName = `${baseName}${setSpeech}`;
 
       const clonedStep = {
         ...step,
         id: `${step.id}-exec-${idx}-${Date.now()}`,
-        parentId: step.id,
-        name: `${step.name}${sideSuffix}${setSuffix}`,
+        parentId: exec.side ? `${step.id}-${exec.side}` : step.id,
+        name,
         ttsName,
         set: exec.set,
         totalSets: exec.totalSets,
         side: exec.side,
         instructions: Array.isArray(step.instructions)
           ? step.instructions.map((ins) => {
-              let newIns = ins;
+              let newIns = exec.isOpposite ? swapLeftRight(ins) : ins;
               if (newIns.includes(step.name)) {
-                newIns = newIns.replace(step.name, `${step.name}${sideSuffix}${setSuffix}`);
+                newIns = newIns.replace(step.name, name);
+              } else if (exec.isOpposite && newIns.includes(baseName)) {
+                newIns = newIns.replace(baseName, name);
               }
               return newIns;
             })
           : step.instructions,
         ttsCues: Array.isArray(step.ttsCues)
           ? step.ttsCues.map((cue) => {
+              let newText = exec.isOpposite ? swapLeftRight(cue.text) : cue.text;
               if (cue.time === 0) {
-                let newText = cue.text;
                 if (newText.includes(step.name)) {
                   newText = newText.replace(step.name, ttsName);
+                } else if (exec.isOpposite && newText.includes(baseName)) {
+                  newText = newText.replace(baseName, ttsName);
                 } else {
                   newText = `下一個動作是：${ttsName}。` + newText;
                 }
-                return { ...cue, text: newText };
               }
-              return { ...cue };
+              return { ...cue, text: newText };
             })
           : [{ time: 0, text: `下一個動作是：${ttsName}。` }],
       };
@@ -325,15 +337,8 @@ function transitionTo(newState) {
     // We do not play initial cue at time 0 of stretching anymore,
     // as it is already played during States.EXPLANATION.
   } else if (state === States.REST) {
-    // Decide rest duration: 8 seconds if switching sides, 3 seconds otherwise (same side)
+    // 3 seconds rest between sets of the same side/action
     let restDuration = 3;
-    if (currentStepIndex > 0) {
-      const prevStep = currentRoutine.steps[currentStepIndex - 1];
-      const nextStep = currentRoutine.steps[currentStepIndex];
-      if (prevStep.side && nextStep.side && prevStep.side !== nextStep.side) {
-        restDuration = 8; // Extended rest for switching sides
-      }
-    }
 
     timeRemaining = restDuration;
     stepDuration = restDuration;
