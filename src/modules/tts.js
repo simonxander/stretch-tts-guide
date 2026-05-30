@@ -42,7 +42,7 @@ export function saveSettings() {
     rate: currentRate,
     volume: currentVolume,
     pitch: currentPitch,
-    sfx: soundEffectsEnabled
+    sfx: soundEffectsEnabled,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
@@ -53,25 +53,35 @@ export function initTTS(onVoicesLoaded) {
 
   const loadVoices = () => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    
+
     voices = window.speechSynthesis.getVoices();
-    
+
     // Auto-select preferred voice (e.g. English/Chinese based on browser settings)
     if (voices.length > 0) {
       if (savedVoiceURI) {
-        currentVoice = voices.find(v => v.voiceURI === savedVoiceURI) || null;
+        currentVoice = voices.find((v) => v.voiceURI === savedVoiceURI) || null;
       }
-      
+
       // Fallback: search for Google Chinese (zh-TW) voices first, then any Chinese, then default
       if (!currentVoice) {
-        currentVoice = voices.find(v => (v.lang.replace('_', '-').toLowerCase() === 'zh-tw' || v.lang.replace('_', '-').toLowerCase() === 'zh-hk') && v.name.includes('Google')) ||
-                       voices.find(v => v.lang.replace('_', '-').toLowerCase() === 'zh-tw' || v.lang.replace('_', '-').toLowerCase() === 'zh-hk') ||
-                       voices.find(v => v.lang.toLowerCase().includes('zh') && v.name.includes('Google')) ||
-                       voices.find(v => v.lang.toLowerCase().includes('zh')) ||
-                       voices.find(v => v.lang.includes('en') && v.name.includes('Natural')) ||
-                       voices[0];
+        currentVoice =
+          voices.find(
+            (v) =>
+              (v.lang.replace('_', '-').toLowerCase() === 'zh-tw' ||
+                v.lang.replace('_', '-').toLowerCase() === 'zh-hk') &&
+              v.name.includes('Google')
+          ) ||
+          voices.find(
+            (v) =>
+              v.lang.replace('_', '-').toLowerCase() === 'zh-tw' ||
+              v.lang.replace('_', '-').toLowerCase() === 'zh-hk'
+          ) ||
+          voices.find((v) => v.lang.toLowerCase().includes('zh') && v.name.includes('Google')) ||
+          voices.find((v) => v.lang.toLowerCase().includes('zh')) ||
+          voices.find((v) => v.lang.includes('en') && v.name.includes('Natural')) ||
+          voices[0];
       }
-      
+
       if (onVoicesLoaded) onVoicesLoaded(voices, currentVoice);
     }
   };
@@ -133,9 +143,10 @@ export function speak(text, onFinishedCallback = null) {
 }
 
 // Play Sound Effect (Chimes / Beeps) using Web Audio API
-export function playChime(frequency = 587.33, type = 'sine', duration = 0.5) { // D5 note
+export function playChime(frequency = 587.33, type = 'sine', duration = 0.5) {
+  // D5 note
   if (!soundEffectsEnabled) return;
-  if (typeof window === 'undefined' || !window.AudioContext && !window.webkitAudioContext) return;
+  if (typeof window === 'undefined' || (!window.AudioContext && !window.webkitAudioContext)) return;
 
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -201,7 +212,7 @@ export function getCurrentVoice() {
 }
 
 export function setVoice(voiceURI) {
-  currentVoice = voices.find(v => v.voiceURI === voiceURI) || null;
+  currentVoice = voices.find((v) => v.voiceURI === voiceURI) || null;
   saveSettings();
 }
 

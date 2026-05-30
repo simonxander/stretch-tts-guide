@@ -1,330 +1,503 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZenStretch - 瀏覽器 TTS 伸展引導</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <!-- Google Fonts for Modern Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  
-  <style>
-    /* 在樣式表載入前，預先將 body 渲染為深色，防範白屏閃爍 */
-    body {
-      background-color: #121514;
-    }
-  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenStretch - 瀏覽器 TTS 伸展引導</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- 預先連結 CSS，避免 JS 非同步載入造成的樣式閃爍 (FOUC) -->
-  <link rel="stylesheet" href="/src/styles/themes.css">
-  <link rel="stylesheet" href="/src/styles/main.css">
-  <link rel="stylesheet" href="/src/styles/animations.css">
-</head>
-<body class="theme-dark">
-  
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="logo-area">
-        <img class="logo-img" src="/favicon.png" alt="ZenStretch Logo">
-        <h1 class="logo-text">ZenStretch</h1>
-      </div>
-      <div class="header-controls">
-        <button id="theme-toggle" class="icon-btn" aria-label="切換深色模式">
-          <svg class="sun-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-          <svg class="moon-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        </button>
-        <button id="settings-toggle" class="icon-btn" aria-label="設定">
-          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </button>
-      </div>
-    </header>
+    <style>
+      /* 在樣式表載入前，預先將 body 渲染為深色，防範白屏閃爍 */
+      body {
+        background-color: #121514;
+      }
+    </style>
 
-    <!-- Main Screens View -->
-    <main class="app-main">
-      
-      <!-- SCREEN 1: Home / Select Routine -->
-      <section id="screen-home" class="app-screen active">
-        <div class="hero-section">
-          <h2>呼吸、伸展，放鬆身心</h2>
-          <p class="hero-subtitle">聆聽柔和的瀏覽器語音 (TTS) 指引，逐步放鬆肌肉與調整呼吸。</p>
+    <!-- 預先連結 CSS，避免 JS 非同步載入造成的樣式閃爍 (FOUC) -->
+    <link rel="stylesheet" href="/src/styles/themes.css" />
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/animations.css" />
+  </head>
+  <body class="theme-dark">
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo-area">
+          <img class="logo-img" src="/favicon.png" alt="ZenStretch Logo" />
+          <h1 class="logo-text">ZenStretch</h1>
         </div>
-
-        <div class="routines-container">
-          <div class="routines-header">
-            <h3>選擇伸展流程</h3>
-            <label class="checkbox-container flex-row" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--text-secondary); cursor: pointer;">
-              <input type="checkbox" id="toggle-hide-presets" style="accent-color: var(--accent-primary); cursor: pointer; width: 16px; height: 16px;"> 隱藏內建流程
-            </label>
-          </div>
-          <div id="routines-list" class="routines-grid">
-            <!-- Dynamically populated via JS -->
-            <div class="loading-placeholder">正在載入流程...</div>
-          </div>
+        <div class="header-controls">
+          <button id="theme-toggle" class="icon-btn" aria-label="切換深色模式">
+            <svg
+              class="sun-icon"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              style="display: none"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg
+              class="moon-icon"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+          <button id="settings-toggle" class="icon-btn" aria-label="設定">
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+              ></path>
+            </svg>
+          </button>
         </div>
+      </header>
 
-        <!-- Custom Routine Options (Phase 1 Sharing) -->
-        <div class="custom-actions-section">
-          <h3>自訂伸展流程</h3>
-          <div class="custom-buttons">
-            <button id="btn-create-routine" class="btn btn-secondary">
-              <span class="btn-icon">➕</span> 建立新流程
-            </button>
-            <button id="btn-import-routine" class="btn btn-secondary">
-              <span class="btn-icon">📥</span> 匯入分享連結/JSON
-            </button>
+      <!-- Main Screens View -->
+      <main class="app-main">
+        <!-- SCREEN 1: Home / Select Routine -->
+        <section id="screen-home" class="app-screen active">
+          <div class="hero-section">
+            <h2>呼吸、伸展，放鬆身心</h2>
+            <p class="hero-subtitle">聆聽柔和的瀏覽器語音 (TTS) 指引，逐步放鬆肌肉與調整呼吸。</p>
           </div>
-        </div>
-      </section>
 
-      <!-- SCREEN 2: Active Workout Screen -->
-      <section id="screen-workout" class="app-screen">
-        <div class="workout-header">
-          <div class="workout-title-area">
-            <h2 id="workout-routine-name">流程名稱</h2>
-            <span id="workout-step-indicator">第 0 / 0 步</span>
+          <div class="routines-container">
+            <div class="routines-header">
+              <h3>選擇伸展流程</h3>
+              <label
+                class="checkbox-container flex-row"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  font-size: 0.95rem;
+                  color: var(--text-secondary);
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="toggle-hide-presets"
+                  style="
+                    accent-color: var(--accent-primary);
+                    cursor: pointer;
+                    width: 16px;
+                    height: 16px;
+                  "
+                />
+                隱藏內建流程
+              </label>
+            </div>
+            <div id="routines-list" class="routines-grid">
+              <!-- Dynamically populated via JS -->
+              <div class="loading-placeholder">正在載入流程...</div>
+            </div>
           </div>
-          <button id="btn-stop-workout" class="btn btn-danger-text">結束離開</button>
-        </div>
 
-        <div class="workout-layout">
-          <!-- Left/Top Side: Focused Timer Card -->
-          <div class="visual-panel card timer-card-focused">
-            <div class="circular-timer">
-              <svg viewBox="0 0 100 100" class="timer-ring">
-                <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
-                <circle id="timer-progress-bar" class="ring-fg" cx="50" cy="50" r="45"></circle>
+          <!-- Custom Routine Options (Phase 1 Sharing) -->
+          <div class="custom-actions-section">
+            <h3>自訂伸展流程</h3>
+            <div class="custom-buttons">
+              <button id="btn-create-routine" class="btn btn-secondary">
+                <span class="btn-icon">➕</span> 建立新流程
+              </button>
+              <button id="btn-import-routine" class="btn btn-secondary">
+                <span class="btn-icon">📥</span> 匯入分享連結/JSON
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 2: Active Workout Screen -->
+        <section id="screen-workout" class="app-screen">
+          <div class="workout-header">
+            <div class="workout-title-area">
+              <h2 id="workout-routine-name">流程名稱</h2>
+              <span id="workout-step-indicator">第 0 / 0 步</span>
+            </div>
+            <button id="btn-stop-workout" class="btn btn-danger-text">結束離開</button>
+          </div>
+
+          <div class="workout-layout">
+            <!-- Left/Top Side: Focused Timer Card -->
+            <div class="visual-panel card timer-card-focused">
+              <div class="circular-timer">
+                <svg viewBox="0 0 100 100" class="timer-ring">
+                  <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
+                  <circle id="timer-progress-bar" class="ring-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-labels">
+                  <span id="timer-state-label" class="timer-phase">準備</span>
+                  <span id="timer-countdown" class="timer-number">5</span>
+                  <span class="timer-sec-label">秒</span>
+                </div>
+              </div>
+
+              <!-- Soft Audio Waveform (TTS active indicator) -->
+              <div id="tts-audio-indicator" class="audio-waveform-hidden">
+                <span class="bar bar-1"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-4"></span>
+                <span class="bar bar-5"></span>
+              </div>
+            </div>
+
+            <!-- Right/Bottom Side: Info and Controls -->
+            <div class="info-panel">
+              <div class="stretch-info-card card">
+                <h3 id="current-stretch-name">準備中</h3>
+                <div id="current-stretch-instructions" class="instructions-content">
+                  <p>請先調整裝置音量，並確認可正常聽到 TTS 語音測試。</p>
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="workout-controls card">
+                <button id="btn-prev" class="btn-circle" aria-label="上一步">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  >
+                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                    <line x1="5" y1="19" x2="5" y2="5"></line>
+                  </svg>
+                </button>
+
+                <button id="btn-play-pause" class="btn-play-pause" aria-label="暫停/播放">
+                  <!-- Pause Icon (Default) -->
+                  <svg
+                    class="pause-icon"
+                    viewBox="0 0 24 24"
+                    width="28"
+                    height="28"
+                    fill="currentColor"
+                  >
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                  <!-- Play Icon (Hidden) -->
+                  <svg
+                    class="play-icon"
+                    viewBox="0 0 24 24"
+                    width="28"
+                    height="28"
+                    fill="currentColor"
+                    style="display: none"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </button>
+
+                <button id="btn-next" class="btn-circle" aria-label="下一步">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  >
+                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                    <line x1="19" y1="5" x2="19" y2="19"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="next-preview-card">
+                <span class="preview-label">下一個動作：</span>
+                <span id="next-stretch-preview" class="preview-name">載入中...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 3: Summary / Completed Screen -->
+        <section id="screen-summary" class="app-screen">
+          <div class="summary-card card">
+            <div class="congrats-badge">🎉</div>
+            <h2>太棒了！</h2>
+            <p>您已成功完成了本次的伸展流程。</p>
+
+            <div class="summary-stats">
+              <div class="stat-box">
+                <span class="stat-value" id="summary-total-time">0:00</span>
+                <span class="stat-label">總時間</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-value" id="summary-exercises-count">0</span>
+                <span class="stat-label">伸展動作</span>
+              </div>
+            </div>
+
+            <div class="summary-message italic">
+              「感謝您的身體，為自己留出這段放鬆舒緩的時光。」
+            </div>
+
+            <button id="btn-back-home" class="btn btn-primary">返回首頁</button>
+          </div>
+        </section>
+      </main>
+
+      <!-- Settings Drawer -->
+      <div id="settings-drawer" class="settings-drawer">
+        <div class="drawer-overlay" id="settings-overlay"></div>
+        <div class="drawer-content">
+          <div class="drawer-header">
+            <h3>語音與音效設定</h3>
+            <button id="btn-close-settings" class="icon-btn" aria-label="關閉設定">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
-              <div class="timer-labels">
-                <span id="timer-state-label" class="timer-phase">準備</span>
-                <span id="timer-countdown" class="timer-number">5</span>
-                <span class="timer-sec-label">秒</span>
+            </button>
+          </div>
+
+          <div class="drawer-body">
+            <div class="setting-item">
+              <label for="tts-voice">語音選擇</label>
+              <select id="tts-voice" class="input-select">
+                <option value="">載入中...</option>
+              </select>
+              <span class="help-text">可用語音選項取決於您的瀏覽器與作業系統環境。</span>
+            </div>
+
+            <div class="setting-item">
+              <div class="slider-header">
+                <label for="tts-rate">語音速度</label>
+                <span id="tts-rate-val">1.0x</span>
               </div>
+              <input
+                type="range"
+                id="tts-rate"
+                min="0.5"
+                max="2.0"
+                step="0.1"
+                value="1.0"
+                class="input-range"
+              />
             </div>
 
-            <!-- Soft Audio Waveform (TTS active indicator) -->
-            <div id="tts-audio-indicator" class="audio-waveform-hidden">
-              <span class="bar bar-1"></span>
-              <span class="bar bar-2"></span>
-              <span class="bar bar-3"></span>
-              <span class="bar bar-4"></span>
-              <span class="bar bar-5"></span>
-            </div>
-          </div>
-
-          <!-- Right/Bottom Side: Info and Controls -->
-          <div class="info-panel">
-            <div class="stretch-info-card card">
-              <h3 id="current-stretch-name">準備中</h3>
-              <div id="current-stretch-instructions" class="instructions-content">
-                <p>請先調整裝置音量，並確認可正常聽到 TTS 語音測試。</p>
+            <div class="setting-item">
+              <div class="slider-header">
+                <label for="tts-volume">語音音量</label>
+                <span id="tts-volume-val">100%</span>
               </div>
+              <input
+                type="range"
+                id="tts-volume"
+                min="0"
+                max="1"
+                step="0.1"
+                value="1"
+                class="input-range"
+              />
             </div>
 
-            <!-- Controls -->
-            <div class="workout-controls card">
-              <button id="btn-prev" class="btn-circle" aria-label="上一步">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
-              </button>
-              
-              <button id="btn-play-pause" class="btn-play-pause" aria-label="暫停/播放">
-                <!-- Pause Icon (Default) -->
-                <svg class="pause-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-                <!-- Play Icon (Hidden) -->
-                <svg class="play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              </button>
-
-              <button id="btn-next" class="btn-circle" aria-label="下一步">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-              </button>
+            <div class="setting-item flex-row">
+              <label for="sfx-toggle">輔助提示鈴聲 (Chimes)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="sfx-toggle" checked />
+                <span class="slider-toggle"></span>
+              </label>
             </div>
-            
-            <div class="next-preview-card">
-              <span class="preview-label">下一個動作：</span>
-              <span id="next-stretch-preview" class="preview-name">載入中...</span>
-            </div>
+
+            <button id="btn-test-voice" class="btn btn-secondary">🔊 測試語音引導</button>
           </div>
-        </div>
-      </section>
-
-      <!-- SCREEN 3: Summary / Completed Screen -->
-      <section id="screen-summary" class="app-screen">
-        <div class="summary-card card">
-          <div class="congrats-badge">🎉</div>
-          <h2>太棒了！</h2>
-          <p>您已成功完成了本次的伸展流程。</p>
-          
-          <div class="summary-stats">
-            <div class="stat-box">
-              <span class="stat-value" id="summary-total-time">0:00</span>
-              <span class="stat-label">總時間</span>
-            </div>
-            <div class="stat-box">
-              <span class="stat-value" id="summary-exercises-count">0</span>
-              <span class="stat-label">伸展動作</span>
-            </div>
-          </div>
-
-          <div class="summary-message italic">
-            「感謝您的身體，為自己留出這段放鬆舒緩的時光。」
-          </div>
-
-          <button id="btn-back-home" class="btn btn-primary">返回首頁</button>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Settings Drawer -->
-    <div id="settings-drawer" class="settings-drawer">
-      <div class="drawer-overlay" id="settings-overlay"></div>
-      <div class="drawer-content">
-        <div class="drawer-header">
-          <h3>語音與音效設定</h3>
-          <button id="btn-close-settings" class="icon-btn" aria-label="關閉設定">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-        </div>
-        
-        <div class="drawer-body">
-          <div class="setting-item">
-            <label for="tts-voice">語音選擇</label>
-            <select id="tts-voice" class="input-select">
-              <option value="">載入中...</option>
-            </select>
-            <span class="help-text">可用語音選項取決於您的瀏覽器與作業系統環境。</span>
-          </div>
-
-          <div class="setting-item">
-            <div class="slider-header">
-              <label for="tts-rate">語音速度</label>
-              <span id="tts-rate-val">1.0x</span>
-            </div>
-            <input type="range" id="tts-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="input-range">
-          </div>
-
-          <div class="setting-item">
-            <div class="slider-header">
-              <label for="tts-volume">語音音量</label>
-              <span id="tts-volume-val">100%</span>
-            </div>
-            <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" class="input-range">
-          </div>
-
-          <div class="setting-item flex-row">
-            <label for="sfx-toggle">輔助提示鈴聲 (Chimes)</label>
-            <label class="toggle-switch">
-              <input type="checkbox" id="sfx-toggle" checked>
-              <span class="slider-toggle"></span>
-            </label>
-          </div>
-
-          <button id="btn-test-voice" class="btn btn-secondary">
-            🔊 測試語音引導
-          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Create Custom Routine Modal -->
-    <div id="modal-create-routine" class="modal-overlay">
-      <div class="modal-content card">
-        <div class="modal-header">
-          <h3 id="modal-create-title">建立自訂伸展流程</h3>
-          <button id="btn-close-create-modal" class="icon-btn" aria-label="關閉視窗">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
+      <!-- Create Custom Routine Modal -->
+      <div id="modal-create-routine" class="modal-overlay">
+        <div class="modal-content card">
+          <div class="modal-header">
+            <h3 id="modal-create-title">建立自訂伸展流程</h3>
+            <button id="btn-close-create-modal" class="icon-btn" aria-label="關閉視窗">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="form-custom-routine">
+              <div class="form-group">
+                <label for="custom-routine-name">流程名稱</label>
+                <input
+                  type="text"
+                  id="custom-routine-name"
+                  required
+                  placeholder="例如：早晨脊椎伸展"
+                  class="input-text-field"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="custom-routine-desc">流程描述</label>
+                <textarea
+                  id="custom-routine-desc"
+                  placeholder="例如：針對起床後的脊椎進行溫和延展，喚醒身體活力。"
+                  class="input-textarea-field"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <div class="stretches-builder-area">
+                <h4>動作排序步驟</h4>
+                <div id="builder-stretches-list">
+                  <!-- Exercises will be appended here -->
+                </div>
+                <button type="button" id="btn-add-builder-stretch" class="btn btn-dashed">
+                  ➕ 新增動作步驟
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btn-cancel-create" class="btn btn-secondary">取消</button>
+            <button type="submit" form="form-custom-routine" class="btn btn-primary">
+              儲存流程
+            </button>
+          </div>
         </div>
-        <div class="modal-body">
-          <form id="form-custom-routine">
+      </div>
+
+      <!-- Import Routine Modal -->
+      <div id="modal-import-routine" class="modal-overlay">
+        <div class="modal-content card">
+          <div class="modal-header">
+            <h3>匯入伸展流程</h3>
+            <button id="btn-close-import-modal" class="icon-btn" aria-label="關閉視窗">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>貼上分享連結或是匯出碼 (JSON) 來匯入流程。</p>
             <div class="form-group">
-              <label for="custom-routine-name">流程名稱</label>
-              <input type="text" id="custom-routine-name" required placeholder="例如：早晨脊椎伸展" class="input-text-field">
+              <label for="import-text">分享連結或代碼</label>
+              <textarea
+                id="import-text"
+                required
+                placeholder="請在此貼上連結或 JSON 代碼..."
+                class="input-textarea-field"
+                rows="6"
+              ></textarea>
+            </div>
+            <div id="import-error" class="error-msg" style="display: none">
+              無效的流程格式，請再試一次。
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btn-cancel-import" class="btn btn-secondary">取消</button>
+            <button type="button" id="btn-submit-import" class="btn btn-primary">開始匯入</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share Routine Modal -->
+      <div id="modal-share-routine" class="modal-overlay">
+        <div class="modal-content card">
+          <div class="modal-header">
+            <h3>分享伸展流程</h3>
+            <button id="btn-close-share-modal" class="icon-btn" aria-label="關閉視窗">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body align-center">
+            <p>使用其他裝置掃描下方 QR Code，或者複製分享連結。</p>
+
+            <div id="share-qr-container" class="qr-container">
+              <!-- QR code will be dynamically generated as SVG/canvas here -->
+              <div id="qr-loading">正在產生 QR Code...</div>
             </div>
 
             <div class="form-group">
-              <label for="custom-routine-desc">流程描述</label>
-              <textarea id="custom-routine-desc" placeholder="例如：針對起床後的脊椎進行溫和延展，喚醒身體活力。" class="input-textarea-field" rows="2"></textarea>
-            </div>
-
-            <div class="stretches-builder-area">
-              <h4>動作排序步驟</h4>
-              <div id="builder-stretches-list">
-                <!-- Exercises will be appended here -->
+              <label for="share-url-input">分享連結</label>
+              <div class="input-with-button">
+                <input type="text" id="share-url-input" readonly class="input-text-field" />
+                <button id="btn-copy-share-url" class="btn btn-primary">複製</button>
               </div>
-              <button type="button" id="btn-add-builder-stretch" class="btn btn-dashed">
-                ➕ 新增動作步驟
-              </button>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="btn-cancel-create" class="btn btn-secondary">取消</button>
-          <button type="submit" form="form-custom-routine" class="btn btn-primary">儲存流程</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Import Routine Modal -->
-    <div id="modal-import-routine" class="modal-overlay">
-      <div class="modal-content card">
-        <div class="modal-header">
-          <h3>匯入伸展流程</h3>
-          <button id="btn-close-import-modal" class="icon-btn" aria-label="關閉視窗">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>貼上分享連結或是匯出碼 (JSON) 來匯入流程。</p>
-          <div class="form-group">
-            <label for="import-text">分享連結或代碼</label>
-            <textarea id="import-text" required placeholder="請在此貼上連結或 JSON 代碼..." class="input-textarea-field" rows="6"></textarea>
-          </div>
-          <div id="import-error" class="error-msg" style="display: none;">無效的流程格式，請再試一次。</div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="btn-cancel-import" class="btn btn-secondary">取消</button>
-          <button type="button" id="btn-submit-import" class="btn btn-primary">開始匯入</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Share Routine Modal -->
-    <div id="modal-share-routine" class="modal-overlay">
-      <div class="modal-content card">
-        <div class="modal-header">
-          <h3>分享伸展流程</h3>
-          <button id="btn-close-share-modal" class="icon-btn" aria-label="關閉視窗">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-        </div>
-        <div class="modal-body align-center">
-          <p>使用其他裝置掃描下方 QR Code，或者複製分享連結。</p>
-          
-          <div id="share-qr-container" class="qr-container">
-            <!-- QR code will be dynamically generated as SVG/canvas here -->
-            <div id="qr-loading">正在產生 QR Code...</div>
-          </div>
-          
-          <div class="form-group">
-            <label for="share-url-input">分享連結</label>
-            <div class="input-with-button">
-              <input type="text" id="share-url-input" readonly class="input-text-field">
-              <button id="btn-copy-share-url" class="btn btn-primary">複製</button>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="btn-close-share" class="btn btn-secondary">關閉</button>
+          <div class="modal-footer">
+            <button type="button" id="btn-close-share" class="btn btn-secondary">關閉</button>
+          </div>
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- App Main Bundle -->
-  <script type="module" src="/src/main.js"></script>
-</body>
+    <!-- App Main Bundle -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

@@ -8,14 +8,14 @@ import { getAnimationSVG } from './animations.js';
 const screens = {
   home: document.getElementById('screen-home'),
   workout: document.getElementById('screen-workout'),
-  summary: document.getElementById('screen-summary')
+  summary: document.getElementById('screen-summary'),
 };
 
 // 彈出視窗
 const modals = {
   create: document.getElementById('modal-create-routine'),
   import: document.getElementById('modal-import-routine'),
-  share: document.getElementById('modal-share-routine')
+  share: document.getElementById('modal-share-routine'),
 };
 
 // 圓形計時環常數
@@ -31,18 +31,18 @@ export function initUI() {
   setupWorkoutControls();
   setupModals();
   setupRoutineCreator();
-  
+
   // 初始化語音選擇器
   tts.initTTS(populateVoiceDropdown);
-  
+
   // 註冊核心計時器回呼事件
   engine.registerCallbacks({
     onStateChange: handleEngineStateChange,
     onTick: handleEngineTick,
     onBreathing: handleEngineBreathing,
-    onComplete: handleEngineComplete
+    onComplete: handleEngineComplete,
   });
-  
+
   // 註冊語音播放時的音頻波形同步
   tts.setTTSCallbacks(
     () => {
@@ -77,19 +77,19 @@ export function initUI() {
 function renderRoutinesList() {
   const container = document.getElementById('routines-list');
   if (!container) return;
-  
+
   const hidePresets = localStorage.getItem('zenstretch_hide_presets') === 'true';
   let routinesList = stretches.getAllRoutines();
   if (hidePresets) {
-    routinesList = routinesList.filter(r => r.isCustom);
+    routinesList = routinesList.filter((r) => r.isCustom);
   }
-  
+
   container.innerHTML = '';
-  
-  routinesList.forEach(routine => {
+
+  routinesList.forEach((routine) => {
     const card = document.createElement('div');
     card.className = `routine-card card fade-in`;
-    
+
     // 標題區域
     const header = document.createElement('div');
     header.className = 'routine-card-header';
@@ -98,11 +98,11 @@ function renderRoutinesList() {
       <p>${escapeHTML(routine.description || '無提供說明。')}</p>
     `;
     card.appendChild(header);
-    
+
     // 腳部統計數據
     const footer = document.createElement('div');
     footer.className = 'routine-card-footer';
-    
+
     const meta = document.createElement('div');
     meta.className = 'routine-meta';
     meta.innerHTML = `
@@ -110,10 +110,10 @@ function renderRoutinesList() {
       <div class="routine-meta-item">🧘 ${routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0)} 個步驟</div>
     `;
     footer.appendChild(meta);
-    
+
     const actions = document.createElement('div');
     actions.className = 'routine-actions';
-    
+
     // 分享按鈕
     const shareBtn = document.createElement('button');
     shareBtn.className = 'routine-action-btn';
@@ -124,7 +124,7 @@ function renderRoutinesList() {
       openShareModal(routine);
     });
     actions.appendChild(shareBtn);
-    
+
     // 自訂動作流程的編輯與刪除按鈕
     if (routine.isCustom) {
       // 編輯按鈕
@@ -153,27 +153,27 @@ function renderRoutinesList() {
       });
       actions.appendChild(deleteBtn);
     }
-    
+
     const startBtn = document.createElement('div');
     startBtn.className = 'routine-start-btn';
     startBtn.innerHTML = '▶';
     actions.appendChild(startBtn);
-    
+
     footer.appendChild(actions);
     card.appendChild(footer);
-    
+
     // 點擊卡片開始運動
     card.addEventListener('click', () => {
       engine.startWorkout(routine);
     });
-    
+
     container.appendChild(card);
   });
 }
 
 // 切換頁面畫面
 function showScreen(screenId) {
-  Object.keys(screens).forEach(id => {
+  Object.keys(screens).forEach((id) => {
     if (id === screenId) {
       screens[id].classList.add('active');
     } else {
@@ -189,23 +189,24 @@ function handleEngineStateChange(state, details) {
     showScreen('home');
     return;
   }
-  
+
   showScreen('workout');
-  
+
   // 更新步驟標題與顯示
   const routineNameEl = document.getElementById('workout-routine-name');
   const stepIndicatorEl = document.getElementById('workout-step-indicator');
   if (routineNameEl) routineNameEl.textContent = details.routine.name;
-  if (stepIndicatorEl) stepIndicatorEl.textContent = `第 ${details.stepIndex + 1} / ${details.routine.steps.length} 步`;
-  
+  if (stepIndicatorEl)
+    stepIndicatorEl.textContent = `第 ${details.stepIndex + 1} / ${details.routine.steps.length} 步`;
+
   // 取得動作詳細資料與 SVG
   const stretchNameEl = document.getElementById('current-stretch-name');
   const instructionsContainer = document.getElementById('current-stretch-instructions');
   const animationContainer = document.getElementById('animation-container');
-  
+
   // 切換播放/暫停按鈕圖示
   togglePlayPauseIcon(true);
-  
+
   if (state === engine.States.PREPARE) {
     if (stretchNameEl) stretchNameEl.textContent = '準備開始';
     if (instructionsContainer) {
@@ -217,21 +218,21 @@ function handleEngineStateChange(state, details) {
     if (animationContainer) {
       animationContainer.innerHTML = getAnimationSVG('default');
     }
-    
+
     document.getElementById('timer-state-label').textContent = '準備';
-    
   } else if (state === engine.States.STRETCHING) {
     if (stretchNameEl) stretchNameEl.textContent = details.step.name;
     if (instructionsContainer) {
-      const listItems = details.step.instructions.map(inst => `<li>${escapeHTML(inst)}</li>`).join('');
+      const listItems = details.step.instructions
+        .map((inst) => `<li>${escapeHTML(inst)}</li>`)
+        .join('');
       instructionsContainer.innerHTML = `<ol>${listItems}</ol>`;
     }
     if (animationContainer) {
       animationContainer.innerHTML = getAnimationSVG(details.step.animationType);
     }
-    
+
     document.getElementById('timer-state-label').textContent = '伸展';
-    
   } else if (state === engine.States.REST) {
     if (stretchNameEl) stretchNameEl.textContent = '放鬆休息';
     if (instructionsContainer) {
@@ -247,10 +248,10 @@ function handleEngineStateChange(state, details) {
     if (animationContainer) {
       animationContainer.innerHTML = getAnimationSVG('default');
     }
-    
+
     document.getElementById('timer-state-label').textContent = '休息';
   }
-  
+
   // 更新下一個動作預覽
   const previewNameEl = document.getElementById('next-stretch-preview');
   if (previewNameEl) {
@@ -267,7 +268,7 @@ function handleEngineStateChange(state, details) {
 function handleEngineTick(timeRemaining, percent) {
   const countdownEl = document.getElementById('timer-countdown');
   if (countdownEl) countdownEl.textContent = timeRemaining;
-  
+
   const progressBar = document.getElementById('timer-progress-bar');
   if (progressBar) {
     const offset = TIMER_RING_DASHARRAY - (percent / 100) * TIMER_RING_DASHARRAY;
@@ -275,12 +276,12 @@ function handleEngineTick(timeRemaining, percent) {
   }
 }
 
-function handleEngineBreathing(breathingState, progress) {
+function handleEngineBreathing(breathingState, _progress) {
   const ring = document.getElementById('breathing-ring');
   const label = document.getElementById('breathing-text');
-  
+
   if (!ring || !label) return;
-  
+
   if (breathingState === 'inhale') {
     ring.className = 'breathing-ring inhale';
     label.textContent = '吸氣';
@@ -298,11 +299,11 @@ function handleEngineBreathing(breathingState, progress) {
 
 function handleEngineComplete(stats) {
   showScreen('summary');
-  
+
   const minutes = Math.floor(stats.totalTime / 60);
   const seconds = stats.totalTime % 60;
   const timeString = `${minutes} 分 ${seconds < 10 ? '0' : ''}${seconds} 秒`;
-  
+
   document.getElementById('summary-total-time').textContent = timeString;
   document.getElementById('summary-exercises-count').textContent = stats.stepCount;
 }
@@ -312,10 +313,10 @@ function handleEngineComplete(stats) {
 function setupThemeToggle() {
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
-  
+
   const sunIcon = btn.querySelector('.sun-icon');
   const moonIcon = btn.querySelector('.moon-icon');
-  
+
   btn.addEventListener('click', () => {
     const isDark = document.body.classList.contains('theme-dark');
     if (isDark) {
@@ -337,22 +338,22 @@ function setupSettingsDrawer() {
   const overlay = document.getElementById('settings-overlay');
   const toggleBtn = document.getElementById('settings-toggle');
   const closeBtn = document.getElementById('btn-close-settings');
-  
+
   if (!drawer || !toggleBtn) return;
-  
+
   const openDrawer = () => drawer.classList.add('active');
   const closeDrawer = () => drawer.classList.remove('active');
-  
+
   toggleBtn.addEventListener('click', openDrawer);
   closeBtn.addEventListener('click', closeDrawer);
   overlay.addEventListener('click', closeDrawer);
-  
+
   // 更改語音選項
   const voiceSelect = document.getElementById('tts-voice');
   voiceSelect.addEventListener('change', (e) => {
     tts.setVoice(e.target.value);
   });
-  
+
   // 更改速度
   const rateSlider = document.getElementById('tts-rate');
   const rateVal = document.getElementById('tts-rate-val');
@@ -361,7 +362,7 @@ function setupSettingsDrawer() {
     rateVal.textContent = `${val}x`;
     tts.setRate(val);
   });
-  
+
   // 更改音量
   const volSlider = document.getElementById('tts-volume');
   const volVal = document.getElementById('tts-volume-val');
@@ -370,44 +371,44 @@ function setupSettingsDrawer() {
     volVal.textContent = `${val}%`;
     tts.setVolume(e.target.value);
   });
-  
+
   // 提示音效開關
   const sfxToggle = document.getElementById('sfx-toggle');
   sfxToggle.addEventListener('change', (e) => {
     tts.setSoundEffectsEnabled(e.target.checked);
   });
-  
+
   // 語音測試按鈕
   document.getElementById('btn-test-voice').addEventListener('click', () => {
     tts.speak('這是 ZenStretch 語音引導系統的測試。一切運作正常，準備好開始伸展了嗎？');
   });
-  
+
   // 預載快取數值至 DOM
   rateSlider.value = tts.getRate();
   rateVal.textContent = `${tts.getRate()}x`;
-  
+
   volSlider.value = tts.getVolume();
   volVal.textContent = `${Math.round(tts.getVolume() * 100)}%`;
-  
+
   sfxToggle.checked = tts.getSoundEffectsEnabled();
 }
 
 function populateVoiceDropdown(voices, currentVoice) {
   const voiceSelect = document.getElementById('tts-voice');
   if (!voiceSelect) return;
-  
+
   voiceSelect.innerHTML = '';
-  
-  voices.forEach(voice => {
+
+  voices.forEach((voice) => {
     const option = document.createElement('option');
     option.value = voice.voiceURI;
-    
+
     // 如果是 Google 的中文語音，特別加上標記以便辨識
     let voiceDisplayName = `${voice.name} (${voice.lang})`;
     if (voice.name.includes('Google') && (voice.lang.includes('zh') || voice.lang.includes('ZH'))) {
       voiceDisplayName = `⭐ ${voiceDisplayName}`;
     }
-    
+
     option.textContent = voiceDisplayName;
     if (currentVoice && voice.voiceURI === currentVoice.voiceURI) {
       option.selected = true;
@@ -424,12 +425,12 @@ function setupWorkoutControls() {
   const nextBtn = document.getElementById('btn-next');
   const prevBtn = document.getElementById('btn-prev');
   const backHomeBtn = document.getElementById('btn-back-home');
-  
+
   if (!playPauseBtn) return;
-  
+
   playPauseBtn.addEventListener('click', () => {
     const isPaused = playPauseBtn.querySelector('.play-icon').style.display === 'block';
-    
+
     if (isPaused) {
       engine.resumeWorkout();
       togglePlayPauseIcon(true);
@@ -438,21 +439,21 @@ function setupWorkoutControls() {
       togglePlayPauseIcon(false);
     }
   });
-  
+
   stopBtn.addEventListener('click', () => {
     if (confirm('確定要放棄並結束這次的伸展運動嗎？')) {
       engine.stopWorkout();
     }
   });
-  
+
   nextBtn.addEventListener('click', () => {
     engine.skipNext();
   });
-  
+
   prevBtn.addEventListener('click', () => {
     engine.skipPrev();
   });
-  
+
   backHomeBtn.addEventListener('click', () => {
     engine.stopWorkout();
     showScreen('home');
@@ -462,10 +463,10 @@ function setupWorkoutControls() {
 function togglePlayPauseIcon(isPlaying) {
   const playPauseBtn = document.getElementById('btn-play-pause');
   if (!playPauseBtn) return;
-  
+
   const pauseIcon = playPauseBtn.querySelector('.pause-icon');
   const playIcon = playPauseBtn.querySelector('.play-icon');
-  
+
   if (isPlaying) {
     pauseIcon.style.display = 'block';
     playIcon.style.display = 'none';
@@ -526,41 +527,40 @@ function resetCreateModalState() {
 function setupModals() {
   const createBtn = document.getElementById('btn-create-routine');
   const importBtn = document.getElementById('btn-import-routine');
-  
+
   const closeCreateBtn = document.getElementById('btn-close-create-modal');
   const closeImportBtn = document.getElementById('btn-close-import-modal');
   const closeShareBtn = document.getElementById('btn-close-share-modal');
-  
+
   const cancelCreateBtn = document.getElementById('btn-cancel-create');
   const cancelImportBtn = document.getElementById('btn-cancel-import');
   const closeShareBtn2 = document.getElementById('btn-close-share');
-  
+
   // 開啟視窗
   createBtn.addEventListener('click', () => modals.create.classList.add('active'));
   importBtn.addEventListener('click', () => modals.import.classList.add('active'));
 
-
   // 關閉視窗
   const hideModals = () => {
-    Object.values(modals).forEach(m => m.classList.remove('active'));
+    Object.values(modals).forEach((m) => m.classList.remove('active'));
   };
-  
+
   closeCreateBtn.addEventListener('click', () => {
     resetCreateModalState();
     hideModals();
   });
   closeImportBtn.addEventListener('click', hideModals);
   closeShareBtn.addEventListener('click', hideModals);
-  
+
   cancelCreateBtn.addEventListener('click', () => {
     resetCreateModalState();
     hideModals();
   });
   cancelImportBtn.addEventListener('click', hideModals);
   closeShareBtn2.addEventListener('click', hideModals);
-  
+
   // 點擊背景遮罩關閉
-  Object.values(modals).forEach(m => {
+  Object.values(modals).forEach((m) => {
     m.addEventListener('click', (e) => {
       if (e.target === m) {
         if (m === modals.create) {
@@ -570,30 +570,30 @@ function setupModals() {
       }
     });
   });
-  
+
   // 處理匯入流程提交
   document.getElementById('btn-submit-import').addEventListener('click', () => {
     const importText = document.getElementById('import-text').value.trim();
     const errorEl = document.getElementById('import-error');
     errorEl.style.display = 'none';
-    
+
     if (!importText) return;
-    
+
     let base64Data = importText;
-    
+
     if (importText.includes('#share=')) {
       base64Data = importText.split('#share=')[1];
     }
-    
+
     try {
       // Base64 解碼為 JSON 字串
       const jsonString = decodeURIComponent(escape(atob(base64Data)));
       const routine = JSON.parse(jsonString);
-      
+
       if (!routine.name || !routine.steps || !Array.isArray(routine.steps)) {
         throw new Error('格式錯誤');
       }
-      
+
       // 儲存匯入的自訂流程
       stretches.saveCustomRoutine(routine);
       renderRoutinesList();
@@ -612,9 +612,9 @@ function setupRoutineCreator() {
   const list = document.getElementById('builder-stretches-list');
   const addStepBtn = document.getElementById('btn-add-builder-stretch');
   const form = document.getElementById('form-custom-routine');
-  
+
   if (!addStepBtn) return;
-  
+
   // 新增一個動作輸入群組
   const addStretchStep = () => {
     const item = document.createElement('div');
@@ -647,19 +647,19 @@ function setupRoutineCreator() {
       </div>
       <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
     `;
-    
+
     item.querySelector('.remove-step-btn').addEventListener('click', () => {
       item.remove();
     });
-    
+
     list.appendChild(item);
   };
-  
+
   addStepBtn.addEventListener('click', addStretchStep);
-  
+
   // 預設添加第一個動作欄位
   addStretchStep();
-  
+
   // 防止在輸入框按 Enter 鍵時意外送出表單，但允許 textarea 進行換行
   form.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -673,17 +673,17 @@ function setupRoutineCreator() {
   // 自訂表單送出儲存
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const routineName = document.getElementById('custom-routine-name').value.trim();
     const items = list.querySelectorAll('.builder-stretch-item');
-    
+
     if (items.length === 0) {
       alert('請至少新增一個動作步驟。');
       return;
     }
-    
+
     const steps = [];
-    
+
     items.forEach((item, index) => {
       const name = item.querySelector('.stretch-name').value.trim();
       const duration = parseInt(item.querySelector('.stretch-duration').value);
@@ -691,9 +691,12 @@ function setupRoutineCreator() {
       const bilateral = item.querySelector('.stretch-bilateral').checked;
       const stepDesc = item.querySelector('.stretch-desc').value.trim();
       const animationType = 'default';
-      
+
       // 支援多行動作說明，以換行分割
-      const stepDescLines = stepDesc.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      const stepDescLines = stepDesc
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
 
       // 自動生成中文說明
       const instructions = [];
@@ -707,26 +710,25 @@ function setupRoutineCreator() {
         `過程中請維持緩慢、平穩且深沉的吸吐。`,
         `三，二，一，動作結束，請慢慢放鬆身體。`
       );
-      
+
       // 自動生成語音播報內容，將多行以逗號連接
-      const ttsText = stepDescLines.length > 0
-        ? stepDescLines.join('，')
-        : `請做好準備，調整成適合「${name}」的舒適姿勢。`;
+      const ttsText =
+        stepDescLines.length > 0
+          ? stepDescLines.join('，')
+          : `請做好準備，調整成適合「${name}」的舒適姿勢。`;
 
       // 自動生成繁體中文語音播報 timeline
-      const ttsCues = [
-        { time: 0, text: `下一個動作是：${name}。${ttsText}` }
-      ];
-      
+      const ttsCues = [{ time: 0, text: `下一個動作是：${name}。${ttsText}` }];
+
       if (duration >= 15) {
         const midpoint = Math.floor(duration / 2);
         ttsCues.push({ time: midpoint, text: `時間過半，請保持深長呼吸。` });
       }
-      
+
       if (duration >= 6) {
         ttsCues.push({ time: duration - 3, text: '三，二，一，慢慢放鬆。' });
       }
-      
+
       steps.push({
         id: `step-${index}-${Date.now()}`,
         name,
@@ -736,25 +738,27 @@ function setupRoutineCreator() {
         description: stepDesc,
         animationType,
         instructions,
-        ttsCues
+        ttsCues,
       });
     });
-    
+
     const routineDescInput = document.getElementById('custom-routine-desc');
-    const description = (routineDescInput && routineDescInput.value.trim()) || `包含 ${steps.length} 個動作的自訂伸展流程。`;
+    const description =
+      (routineDescInput && routineDescInput.value.trim()) ||
+      `包含 ${steps.length} 個動作的自訂伸展流程。`;
 
     const newRoutine = {
       id: editingRoutineId || undefined,
       name: routineName,
       description: description,
       durationText: '',
-      steps
+      steps,
     };
     newRoutine.durationText = calculateDurationText(newRoutine);
-    
+
     stretches.saveCustomRoutine(newRoutine);
     renderRoutinesList();
-    
+
     // 重設表單與視窗關閉
     resetCreateModalState();
     modals.create.classList.remove('active');
@@ -764,20 +768,20 @@ function setupRoutineCreator() {
 // 開啟並填入編輯視窗資料
 function openEditRoutineModal(routine) {
   editingRoutineId = routine.id;
-  
+
   const modalTitle = document.getElementById('modal-create-title');
   if (modalTitle) modalTitle.textContent = '編輯自訂伸展流程';
-  
+
   const nameInput = document.getElementById('custom-routine-name');
   if (nameInput) nameInput.value = routine.name;
-  
+
   const descInput = document.getElementById('custom-routine-desc');
   if (descInput) descInput.value = routine.description || '';
-  
+
   const list = document.getElementById('builder-stretches-list');
   if (list) {
     list.innerHTML = '';
-    routine.steps.forEach((step, index) => {
+    routine.steps.forEach((step) => {
       const item = document.createElement('div');
       item.className = 'builder-stretch-item';
       item.innerHTML = `
@@ -812,7 +816,7 @@ function openEditRoutineModal(routine) {
       list.appendChild(item);
     });
   }
-  
+
   modals.create.classList.add('active');
 }
 
@@ -822,18 +826,18 @@ function openShareModal(routine) {
   const urlInput = document.getElementById('share-url-input');
   const qrContainer = document.getElementById('share-qr-container');
   const copyBtn = document.getElementById('btn-copy-share-url');
-  
+
   if (!urlInput || !qrContainer) return;
-  
+
   copyBtn.textContent = '複製';
   qrContainer.innerHTML = '<div id="qr-loading">正在產生 QR Code...</div>';
-  
+
   // 過濾多餘欄位，精簡分享內容
   const cleanRoutine = {
     name: routine.name,
     description: routine.description,
     durationText: routine.durationText,
-    steps: routine.steps.map(s => ({
+    steps: routine.steps.map((s) => ({
       name: s.name,
       duration: s.duration,
       repeat: s.repeat,
@@ -841,20 +845,20 @@ function openShareModal(routine) {
       description: s.description,
       animationType: s.animationType,
       instructions: s.instructions,
-      ttsCues: s.ttsCues
-    }))
+      ttsCues: s.ttsCues,
+    })),
   };
-  
+
   // 將 JSON 字串轉換為 Base64 格式
   const jsonString = JSON.stringify(cleanRoutine);
   const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
-  
+
   // 建立分享連結
   const shareUrl = `${window.location.origin}${window.location.pathname}#share=${base64Data}`;
   urlInput.value = shareUrl;
-  
+
   modals.share.classList.add('active');
-  
+
   // 使用開源 API 產生 QR Code 圖片
   const qrImg = new Image();
   qrImg.onload = () => {
@@ -866,16 +870,17 @@ function openShareModal(routine) {
   };
   qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(shareUrl)}`;
   qrImg.alt = '自訂動作同步二維碼';
-  
+
   // 複製按鈕點擊事件
   copyBtn.onclick = () => {
     urlInput.select();
-    navigator.clipboard.writeText(shareUrl)
+    navigator.clipboard
+      .writeText(shareUrl)
       .then(() => {
         copyBtn.textContent = '已複製！';
-        setTimeout(() => copyBtn.textContent = '複製', 2000);
+        setTimeout(() => (copyBtn.textContent = '複製'), 2000);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('複製連結失敗:', err);
       });
   };
@@ -884,19 +889,19 @@ function openShareModal(routine) {
 // 處理 URL 含有 `#share=...` 的自動匯入
 function handleSharedUrlImport() {
   if (!window.location.hash.startsWith('#share=')) return;
-  
+
   const base64Data = window.location.hash.split('#share=')[1];
-  
+
   try {
     const jsonString = decodeURIComponent(escape(atob(base64Data)));
     const routine = JSON.parse(jsonString);
-    
+
     if (routine && routine.name && routine.steps) {
       const saved = stretches.saveCustomRoutine(routine);
-      
+
       // 清空 URL Hash 維持網址整潔
       window.history.replaceState(null, null, ' ');
-      
+
       alert(`成功匯入分享流程：「${saved.name}」！`);
     }
   } catch (err) {
@@ -907,11 +912,17 @@ function handleSharedUrlImport() {
 // --- 通用工具常數 ---
 
 function calculateDurationText(routine) {
-  const totalSeconds = routine.steps.reduce((sum, s) => sum + s.duration * (s.repeat || 1) * (s.bilateral ? 2 : 1), 0);
-  const totalReps = routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0);
+  const totalSeconds = routine.steps.reduce(
+    (sum, s) => sum + s.duration * (s.repeat || 1) * (s.bilateral ? 2 : 1),
+    0
+  );
+  const totalReps = routine.steps.reduce(
+    (sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1),
+    0
+  );
   const totalRestSeconds = totalReps > 1 ? (totalReps - 1) * 8 : 0;
   const finalSeconds = totalSeconds + totalRestSeconds;
-  const mins = Math.round(finalSeconds / 60 * 10) / 10;
+  const mins = Math.round((finalSeconds / 60) * 10) / 10;
   return `${mins} 分鐘`;
 }
 

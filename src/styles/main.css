@@ -26,7 +26,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  filter: drop-shadow(0 2px 4px rgba(117,146,131,0.2));
+  filter: drop-shadow(0 2px 4px rgba(117, 146, 131, 0.2));
 }
 
 .logo-text {
@@ -56,7 +56,9 @@
   display: none;
   opacity: 0;
   transform: translateY(15px);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
+  transition:
+    opacity var(--transition-slow),
+    transform var(--transition-slow);
 }
 
 .app-screen.active {
@@ -103,7 +105,10 @@ p {
   border-radius: var(--radius-md);
   box-shadow: var(--card-shadow);
   padding: 1.5rem;
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 /* --- Buttons --- */
@@ -441,11 +446,26 @@ p {
   animation: bounce 0.8s ease-in-out infinite alternate;
 }
 
-#tts-audio-indicator .bar-1 { height: 30%; animation-delay: 0.1s; }
-#tts-audio-indicator .bar-2 { height: 80%; animation-delay: 0.3s; }
-#tts-audio-indicator .bar-3 { height: 50%; animation-delay: 0.2s; }
-#tts-audio-indicator .bar-4 { height: 95%; animation-delay: 0.4s; }
-#tts-audio-indicator .bar-5 { height: 40%; animation-delay: 0.15s; }
+#tts-audio-indicator .bar-1 {
+  height: 30%;
+  animation-delay: 0.1s;
+}
+#tts-audio-indicator .bar-2 {
+  height: 80%;
+  animation-delay: 0.3s;
+}
+#tts-audio-indicator .bar-3 {
+  height: 50%;
+  animation-delay: 0.2s;
+}
+#tts-audio-indicator .bar-4 {
+  height: 95%;
+  animation-delay: 0.4s;
+}
+#tts-audio-indicator .bar-5 {
+  height: 40%;
+  animation-delay: 0.15s;
+}
 
 @keyframes bounce {
   100% {
@@ -676,7 +696,7 @@ p {
   font-size: 4rem;
   line-height: 1;
   margin-bottom: 0.5rem;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .summary-stats {
@@ -892,20 +912,20 @@ p {
   right: 0;
   bottom: 0;
   background-color: var(--accent-soft);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 34px;
   border: 1px solid var(--border-color);
 }
 
 .slider-toggle:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 18px;
   width: 18px;
   left: 3px;
   bottom: 3px;
   background-color: var(--text-secondary);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 
@@ -951,8 +971,14 @@ p {
 }
 
 @keyframes modalScale {
-  0% { transform: scale(0.9) translateY(10px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
+  0% {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -1145,12 +1171,12 @@ p {
 }
 
 /* Hide number spinner controls on builder number inputs */
-.builder-stretch-item input[type=number]::-webkit-inner-spin-button,
-.builder-stretch-item input[type=number]::-webkit-outer-spin-button {
+.builder-stretch-item input[type='number']::-webkit-inner-spin-button,
+.builder-stretch-item input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.builder-stretch-item input[type=number] {
+.builder-stretch-item input[type='number'] {
   -moz-appearance: textfield;
 }
 
@@ -1162,7 +1188,7 @@ p {
   margin: 1.5rem auto;
   width: 200px;
   height: 200px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 10px;
@@ -1187,7 +1213,7 @@ p {
   .workout-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .timer-card-focused {
     min-height: 280px;
     padding: 1.5rem;
@@ -1201,7 +1227,7 @@ p {
   .timer-number {
     font-size: 4.5rem;
   }
-  
+
   .timer-phase {
     font-size: 0.95rem;
   }
@@ -1235,7 +1261,7 @@ p {
   .builder-stretch-item .details-row {
     grid-template-columns: 1fr;
   }
-  
+
   .circular-timer {
     width: 160px;
     height: 160px;
@@ -1248,7 +1274,7 @@ p {
   .workout-controls {
     gap: 1rem;
   }
-  
+
   .btn-play-pause {
     width: 58px;
     height: 58px;
