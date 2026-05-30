@@ -1084,8 +1084,13 @@ p {
 }
 
 .builder-stretch-item .form-inputs-row {
+  display: block;
+  width: 100%;
+}
+
+.builder-stretch-item .details-row {
   display: grid;
-  grid-template-columns: 3fr 1.2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.5rem;
 }
 
@@ -1116,6 +1121,37 @@ p {
 
 .builder-stretch-item .description-row {
   display: block;
+}
+
+/* Suffix wrapper and labels */
+.input-unit-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-unit-wrapper .input-text-field {
+  padding-right: 1.75rem;
+}
+
+.input-unit-label {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hide number spinner controls on builder number inputs */
+.builder-stretch-item input[type=number]::-webkit-inner-spin-button,
+.builder-stretch-item input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.builder-stretch-item input[type=number] {
+  -moz-appearance: textfield;
 }
 
 /* QR Code area styling */
@@ -1196,7 +1232,7 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .builder-stretch-item .form-inputs-row {
+  .builder-stretch-item .details-row {
     grid-template-columns: 1fr;
   }
   

@@ -491,14 +491,25 @@ function resetCreateModalState() {
     item.innerHTML = `
       <span class="drag-handle">☰</span>
       <div class="form-inputs-container">
+        <!-- 第一行：動作名稱 -->
         <div class="form-inputs-row">
           <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
-          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
-          <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+        </div>
+        <!-- 第二行：秒數、組數、雙側 -->
+        <div class="form-inputs-row details-row">
+          <div class="input-unit-wrapper">
+            <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
+            <span class="input-unit-label">秒</span>
+          </div>
+          <div class="input-unit-wrapper">
+            <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+            <span class="input-unit-label">組</span>
+          </div>
           <label class="checkbox-label stretch-bilateral-label">
             <input type="checkbox" class="stretch-bilateral"> 雙側
           </label>
         </div>
+        <!-- 第三行：動作說明 -->
         <div class="form-inputs-row description-row">
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
         </div>
@@ -611,14 +622,25 @@ function setupRoutineCreator() {
     item.innerHTML = `
       <span class="drag-handle">☰</span>
       <div class="form-inputs-container">
+        <!-- 第一行：動作名稱 -->
         <div class="form-inputs-row">
           <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
-          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
-          <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+        </div>
+        <!-- 第二行：秒數、組數、雙側 -->
+        <div class="form-inputs-row details-row">
+          <div class="input-unit-wrapper">
+            <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
+            <span class="input-unit-label">秒</span>
+          </div>
+          <div class="input-unit-wrapper">
+            <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+            <span class="input-unit-label">組</span>
+          </div>
           <label class="checkbox-label stretch-bilateral-label">
             <input type="checkbox" class="stretch-bilateral"> 雙側
           </label>
         </div>
+        <!-- 第三行：動作說明 -->
         <div class="form-inputs-row description-row">
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
         </div>
@@ -761,14 +783,25 @@ function openEditRoutineModal(routine) {
       item.innerHTML = `
         <span class="drag-handle">☰</span>
         <div class="form-inputs-container">
+          <!-- 第一行：動作名稱 -->
           <div class="form-inputs-row">
             <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)" value="${escapeHTML(step.name)}">
-            <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
-            <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="${step.repeat || 1}">
+          </div>
+          <!-- 第二行：秒數、組數、雙側 -->
+          <div class="form-inputs-row details-row">
+            <div class="input-unit-wrapper">
+              <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
+              <span class="input-unit-label">秒</span>
+            </div>
+            <div class="input-unit-wrapper">
+              <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="${step.repeat || 1}">
+              <span class="input-unit-label">組</span>
+            </div>
             <label class="checkbox-label stretch-bilateral-label">
               <input type="checkbox" class="stretch-bilateral" ${step.bilateral ? 'checked' : ''}> 雙側
             </label>
           </div>
+          <!-- 第三行：動作說明 -->
           <div class="form-inputs-row description-row">
             <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2">${escapeHTML(step.description || '')}</textarea>
           </div>
