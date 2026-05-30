@@ -107,7 +107,7 @@ function renderRoutinesList() {
     meta.className = 'routine-meta';
     meta.innerHTML = `
       <div class="routine-meta-item">⏱️ ${escapeHTML(routine.durationText || calculateDurationText(routine))}</div>
-      <div class="routine-meta-item">🧘 ${routine.steps.reduce((sum, s) => sum + (s.repeat || 1), 0)} 個步驟</div>
+      <div class="routine-meta-item">🧘 ${routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0)} 個步驟</div>
     `;
     footer.appendChild(meta);
     
@@ -495,6 +495,9 @@ function resetCreateModalState() {
           <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
           <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
           <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+          <label class="checkbox-label stretch-bilateral-label">
+            <input type="checkbox" class="stretch-bilateral"> 雙側
+          </label>
         </div>
         <div class="form-inputs-row description-row">
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
@@ -612,6 +615,9 @@ function setupRoutineCreator() {
           <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
           <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
           <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+          <label class="checkbox-label stretch-bilateral-label">
+            <input type="checkbox" class="stretch-bilateral"> 雙側
+          </label>
         </div>
         <div class="form-inputs-row description-row">
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
@@ -660,6 +666,7 @@ function setupRoutineCreator() {
       const name = item.querySelector('.stretch-name').value.trim();
       const duration = parseInt(item.querySelector('.stretch-duration').value);
       const repeat = parseInt(item.querySelector('.stretch-repeat').value || '1');
+      const bilateral = item.querySelector('.stretch-bilateral').checked;
       const stepDesc = item.querySelector('.stretch-desc').value.trim();
       const animationType = 'default';
       
@@ -703,6 +710,7 @@ function setupRoutineCreator() {
         name,
         duration,
         repeat,
+        bilateral,
         description: stepDesc,
         animationType,
         instructions,
@@ -757,6 +765,9 @@ function openEditRoutineModal(routine) {
             <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)" value="${escapeHTML(step.name)}">
             <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
             <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="${step.repeat || 1}">
+            <label class="checkbox-label stretch-bilateral-label">
+              <input type="checkbox" class="stretch-bilateral" ${step.bilateral ? 'checked' : ''}> 雙側
+            </label>
           </div>
           <div class="form-inputs-row description-row">
             <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2">${escapeHTML(step.description || '')}</textarea>
@@ -793,6 +804,7 @@ function openShareModal(routine) {
       name: s.name,
       duration: s.duration,
       repeat: s.repeat,
+      bilateral: s.bilateral,
       description: s.description,
       animationType: s.animationType,
       instructions: s.instructions,
@@ -862,8 +874,8 @@ function handleSharedUrlImport() {
 // --- 通用工具常數 ---
 
 function calculateDurationText(routine) {
-  const totalSeconds = routine.steps.reduce((sum, s) => sum + s.duration * (s.repeat || 1), 0);
-  const totalReps = routine.steps.reduce((sum, s) => sum + (s.repeat || 1), 0);
+  const totalSeconds = routine.steps.reduce((sum, s) => sum + s.duration * (s.repeat || 1) * (s.bilateral ? 2 : 1), 0);
+  const totalReps = routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0);
   const totalRestSeconds = totalReps > 1 ? (totalReps - 1) * 8 : 0;
   const finalSeconds = totalSeconds + totalRestSeconds;
   const mins = Math.round(finalSeconds / 60 * 10) / 10;

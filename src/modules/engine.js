@@ -65,45 +65,62 @@ export function getStepIndex() {
 export function startWorkout(routine) {
   stopWorkout();
   
-  // Flatten routine steps if any steps have a repeat count > 1
+  // Flatten routine steps based on repeats and bilateral sides
   const flattenedSteps = [];
   routine.steps.forEach(step => {
     const repeat = step.repeat || 1;
-    if (repeat <= 1) {
-      flattenedSteps.push({ ...step });
+    const bilateral = step.bilateral || false;
+    
+    const executions = [];
+    if (bilateral) {
+      for (let r = 1; r <= repeat; r++) {
+        executions.push({ side: '右側', set: r, totalSets: repeat });
+        executions.push({ side: '左側', set: r, totalSets: repeat });
+      }
     } else {
-      for (let i = 1; i <= repeat; i++) {
-        // Create a copy of the step with a repeat suffix
-        const clonedStep = {
-          ...step,
-          id: `${step.id}-rep-${i}`,
-          name: `${step.name} (第 ${i}/${repeat} 組)`,
-          instructions: Array.isArray(step.instructions)
-            ? step.instructions.map(ins => {
-                if (ins.includes(step.name)) {
-                  return ins.replace(step.name, `${step.name} (第 ${i} 組)`);
-                }
-                return ins;
-              })
-            : step.instructions,
-          ttsCues: Array.isArray(step.ttsCues)
-            ? step.ttsCues.map(cue => {
-                if (cue.time === 0) {
-                  let newText = cue.text;
-                  if (newText.includes(step.name)) {
-                    newText = newText.replace(step.name, `${step.name} (第 ${i} 組)`);
-                  } else {
-                    newText = `下一個動作是：${step.name} (第 ${i} 組)。` + newText;
-                  }
-                  return { ...cue, text: newText };
-                }
-                return { ...cue };
-              })
-            : [{ time: 0, text: `下一個動作是：${step.name} (第 ${i} 組)。` }]
-        };
-        flattenedSteps.push(clonedStep);
+      for (let r = 1; r <= repeat; r++) {
+        executions.push({ side: null, set: r, totalSets: repeat });
       }
     }
+    
+    executions.forEach((exec, idx) => {
+      const setSuffix = exec.totalSets > 1 ? ` (第 ${exec.set}/${exec.totalSets} 組)` : '';
+      const sideSuffix = exec.side ? ` (${exec.side})` : '';
+      
+      const clonedStep = {
+        ...step,
+        id: `${step.id}-exec-${idx}-${Date.now()}`,
+        name: `${step.name}${sideSuffix}${setSuffix}`,
+        instructions: Array.isArray(step.instructions)
+          ? step.instructions.map(ins => {
+              let newIns = ins;
+              if (newIns.includes(step.name)) {
+                newIns = newIns.replace(step.name, `${step.name}${sideSuffix}${setSuffix}`);
+              }
+              return newIns;
+            })
+          : step.instructions,
+        ttsCues: Array.isArray(step.ttsCues)
+          ? step.ttsCues.map(cue => {
+              if (cue.time === 0) {
+                let newText = cue.text;
+                const repText = exec.side 
+                  ? (exec.totalSets > 1 ? `${step.name}，${exec.side}，第 ${exec.set} 組` : `${step.name}，${exec.side}`)
+                  : (exec.totalSets > 1 ? `${step.name}，第 ${exec.set} 組` : `${step.name}`);
+                  
+                if (newText.includes(step.name)) {
+                  newText = newText.replace(step.name, repText);
+                } else {
+                  newText = `下一個動作是：${repText}。` + newText;
+                }
+                return { ...cue, text: newText };
+              }
+              return { ...cue };
+            })
+          : [{ time: 0, text: `下一個動作是：${step.name}${sideSuffix}${setSuffix}。` }]
+      };
+      flattenedSteps.push(clonedStep);
+    });
   });
 
   currentRoutine = {
