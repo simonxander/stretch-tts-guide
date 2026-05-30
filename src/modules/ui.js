@@ -508,10 +508,15 @@ function setupModals() {
       item.className = 'builder-stretch-item';
       item.innerHTML = `
         <span class="drag-handle">☰</span>
-        <div class="form-inputs">
-          <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
-          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
-          <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+        <div class="form-inputs-container">
+          <div class="form-inputs-row">
+            <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
+            <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
+            <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+          </div>
+          <div class="form-inputs-row description-row">
+            <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
+          </div>
         </div>
         <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
       `;
@@ -601,10 +606,15 @@ function setupRoutineCreator() {
     item.className = 'builder-stretch-item';
     item.innerHTML = `
       <span class="drag-handle">☰</span>
-      <div class="form-inputs">
-        <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
-        <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
-        <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+      <div class="form-inputs-container">
+        <div class="form-inputs-row">
+          <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)">
+          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="20">
+          <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="1">
+        </div>
+        <div class="form-inputs-row description-row">
+          <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
+        </div>
       </div>
       <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
     `;
@@ -621,6 +631,16 @@ function setupRoutineCreator() {
   // 預設添加第一個動作欄位
   addStretchStep();
   
+  // 防止在輸入框按 Enter 鍵時意外送出表單，但允許 textarea 進行換行
+  form.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (e.target.tagName.toLowerCase() === 'textarea') {
+        return;
+      }
+      e.preventDefault();
+    }
+  });
+
   // 自訂表單送出儲存
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -639,19 +659,33 @@ function setupRoutineCreator() {
       const name = item.querySelector('.stretch-name').value.trim();
       const duration = parseInt(item.querySelector('.stretch-duration').value);
       const repeat = parseInt(item.querySelector('.stretch-repeat').value || '1');
+      const stepDesc = item.querySelector('.stretch-desc').value.trim();
       const animationType = 'default';
       
+      // 支援多行動作說明，以換行分割
+      const stepDescLines = stepDesc.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
       // 自動生成中文說明
-      const instructions = [
-        `請做好準備，調整成適合「${name}」的舒適姿勢。`,
+      const instructions = [];
+      if (stepDescLines.length > 0) {
+        instructions.push(...stepDescLines);
+      } else {
+        instructions.push(`請做好準備，調整成適合「${name}」的舒適姿勢。`);
+      }
+      instructions.push(
         `保持身體拉伸並維持此動作 ${duration} 秒。`,
         `過程中請維持緩慢、平穩且深沉的吸吐。`,
         `三，二，一，動作結束，請慢慢放鬆身體。`
-      ];
+      );
       
+      // 自動生成語音播報內容，將多行以逗號連接
+      const ttsText = stepDescLines.length > 0
+        ? stepDescLines.join('，')
+        : `請做好準備，調整成適合「${name}」的舒適姿勢。`;
+
       // 自動生成繁體中文語音播報 timeline
       const ttsCues = [
-        { time: 0, text: `下一個動作是：${name}。${instructions[0]}` }
+        { time: 0, text: `下一個動作是：${name}。${ttsText}` }
       ];
       
       if (duration >= 15) {
@@ -668,6 +702,7 @@ function setupRoutineCreator() {
         name,
         duration,
         repeat,
+        description: stepDesc,
         animationType,
         instructions,
         ttsCues
@@ -716,10 +751,15 @@ function openEditRoutineModal(routine) {
       item.className = 'builder-stretch-item';
       item.innerHTML = `
         <span class="drag-handle">☰</span>
-        <div class="form-inputs">
-          <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)" value="${escapeHTML(step.name)}">
-          <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
-          <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="${step.repeat || 1}">
+        <div class="form-inputs-container">
+          <div class="form-inputs-row">
+            <input type="text" class="input-text-field stretch-name" required placeholder="動作名稱 (如: 轉腰拉伸)" value="${escapeHTML(step.name)}">
+            <input type="number" class="input-text-field stretch-duration" required placeholder="秒數" min="5" max="300" value="${step.duration}">
+            <input type="number" class="input-text-field stretch-repeat" required placeholder="組數" min="1" max="10" value="${step.repeat || 1}">
+          </div>
+          <div class="form-inputs-row description-row">
+            <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2">${escapeHTML(step.description || '')}</textarea>
+          </div>
         </div>
         <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
       `;
@@ -751,6 +791,8 @@ function openShareModal(routine) {
     steps: routine.steps.map(s => ({
       name: s.name,
       duration: s.duration,
+      repeat: s.repeat,
+      description: s.description,
       animationType: s.animationType,
       instructions: s.instructions,
       ttsCues: s.ttsCues
