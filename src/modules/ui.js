@@ -238,6 +238,19 @@ function handleEngineStateChange(state, details) {
   // 取得秒數單位標籤
   const secLabel = document.querySelector('.timer-sec-label');
 
+  // 更新組數指示器
+  const setIndicator = document.getElementById('timer-set-indicator');
+  const setCurrent = document.getElementById('timer-set-current');
+  const setTotal = document.getElementById('timer-set-total');
+
+  if (details.step && details.step.totalSets > 1) {
+    if (setIndicator) setIndicator.style.display = 'flex';
+    if (setCurrent) setCurrent.textContent = details.step.set;
+    if (setTotal) setTotal.textContent = details.step.totalSets;
+  } else {
+    if (setIndicator) setIndicator.style.display = 'none';
+  }
+
   if (state === engine.States.PREPARE) {
     if (secLabel) secLabel.style.display = 'inline';
     if (stretchNameEl) stretchNameEl.textContent = '準備開始';
@@ -301,18 +314,6 @@ function handleEngineStateChange(state, details) {
     }
 
     document.getElementById('timer-state-label').textContent = '休息';
-  }
-
-  // 更新下一個動作預覽
-  const previewNameEl = document.getElementById('next-stretch-preview');
-  if (previewNameEl) {
-    if (details.nextStep) {
-      previewNameEl.textContent = details.nextStep.name;
-      previewNameEl.parentElement.style.opacity = '1';
-    } else {
-      previewNameEl.textContent = '無';
-      previewNameEl.parentElement.style.opacity = '0';
-    }
   }
 }
 
@@ -772,7 +773,7 @@ function setupRoutineCreator() {
           : `請做好準備，調整成適合「${name}」的舒適姿勢。`;
 
       // 自動生成繁體中文語音播報 timeline
-      const ttsCues = [{ time: 0, text: `下一個動作是：${name}。${ttsText}` }];
+      const ttsCues = [{ time: 0, text: `${name}。${ttsText}` }];
 
       if (duration >= 15) {
         const midpoint = Math.floor(duration / 2);

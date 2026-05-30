@@ -164,6 +164,11 @@
                 </div>
               </div>
 
+              <!-- Set indicator (circular, positioned top right) -->
+              <div id="timer-set-indicator" class="set-indicator-circle" style="display: none;">
+                <span id="timer-set-current">1</span><span class="set-indicator-slash">/</span><span id="timer-set-total">3</span>
+              </div>
+
               <!-- Soft Audio Waveform (TTS active indicator) -->
               <div id="tts-audio-indicator" class="audio-waveform-hidden">
                 <span class="bar bar-1"></span>
@@ -239,10 +244,7 @@
                 </button>
               </div>
 
-              <div class="next-preview-card">
-                <span class="preview-label">下一個動作：</span>
-                <span id="next-stretch-preview" class="preview-name">載入中...</span>
-              </div>
+
             </div>
           </div>
         </section>

@@ -98,13 +98,10 @@ export function startWorkout(routine) {
     }
 
     executions.forEach((exec, idx) => {
-      const setSuffix = exec.totalSets > 1 ? ` (第 ${exec.set}/${exec.totalSets} 組)` : '';
-      
       const baseName = exec.isOpposite ? swapLeftRight(step.name) : step.name;
-      const name = `${baseName}${setSuffix}`;
+      const name = baseName;
 
-      const setSpeech = exec.totalSets > 1 ? `，第 ${exec.set} 組` : '';
-      const ttsName = `${baseName}${setSpeech}`;
+      const ttsName = baseName;
 
       const clonedStep = {
         ...step,
@@ -135,12 +132,15 @@ export function startWorkout(routine) {
                 } else if (exec.isOpposite && newText.includes(baseName)) {
                   newText = newText.replace(baseName, ttsName);
                 } else {
-                  newText = `下一個動作是：${ttsName}。` + newText;
+                  newText = `${ttsName}。` + newText;
                 }
+                
+                // Remove legacy "下一個動作是：" prefixes dynamically for backward compatibility
+                newText = newText.replace(/下一個動作[是，：]*\s*/g, '');
               }
               return { ...cue, text: newText };
             })
-          : [{ time: 0, text: `下一個動作是：${ttsName}。` }],
+          : [{ time: 0, text: `${ttsName}。` }],
       };
       flattenedSteps.push(clonedStep);
     });
@@ -283,6 +283,8 @@ function transitionTo(newState) {
   const currentStep = getCurrentStep();
   const nextStep = getNextStep();
 
+  let delayTimerLoop = false;
+
   if (state === States.PREPARE) {
     timeRemaining = 10;
     stepDuration = 10;
@@ -307,7 +309,7 @@ function transitionTo(newState) {
       const initialCue = currentStep.ttsCues.find((c) => c.time === 0);
       const explanationText = initialCue
         ? initialCue.text
-        : `下一個動作是：${currentStep.ttsName || currentStep.name}。`;
+        : `${currentStep.ttsName || currentStep.name}。`;
 
       // Prepend relaxation text from completed action if present
       const finalSpeakText = relaxationText
@@ -329,13 +331,13 @@ function transitionTo(newState) {
     // Play chime
     tts.playChime(659.25, 'sine', 0.4); // E5 note
 
-    // Speak set number for sets > 1 when stretching starts
-    if (currentStep && currentStep.totalSets > 1 && currentStep.set > 1) {
-      tts.speak(`第 ${currentStep.set} 組`);
-    }
+    delayTimerLoop = true;
+    tts.speak('開始。', () => {
+      if (state === States.STRETCHING && !timerInterval) {
+        startTimerLoop();
+      }
+    });
 
-    // We do not play initial cue at time 0 of stretching anymore,
-    // as it is already played during States.EXPLANATION.
   } else if (state === States.REST) {
     // 3 seconds rest between sets of the same side/action
     let restDuration = 3;
@@ -393,12 +395,14 @@ function transitionTo(newState) {
   }
 
   // Trigger warning beep if duration is exactly 3 seconds
-  if (timeRemaining === 3) {
+  if (timeRemaining === 3 && !delayTimerLoop) {
     tts.playChime(523.25, 'triangle', 0.1);
   }
 
-  // Start the timer loop
-  startTimerLoop();
+  // Start the timer loop conditionally
+  if (!delayTimerLoop) {
+    startTimerLoop();
+  }
 }
 
 // Primary 1-second interval loop
