@@ -1232,8 +1232,6 @@ function setupRoutineCreator() {
         ttsCues.push({ time: midpoint, text: `時間過半，請保持深長呼吸。` });
       }
 
-      ttsCues.push({ time: duration, text: '放鬆。' });
-
       steps.push({
         id: `step-${index}-${Date.now()}`,
         name,

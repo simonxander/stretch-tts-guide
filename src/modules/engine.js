@@ -359,7 +359,13 @@ function transitionTo(newState) {
     const finalSpeakText = relaxationText
       ? `${relaxationText}。${restAnnouncement}`
       : restAnnouncement;
-    tts.speak(finalSpeakText);
+
+    delayTimerLoop = true;
+    tts.speak(finalSpeakText, () => {
+      if (state === States.REST && !timerInterval) {
+        startTimerLoop();
+      }
+    });
   } else if (state === States.COMPLETED) {
     // Workout finished!
     tts.playChime(880.0, 'sine', 0.8); // A5 chime
