@@ -342,8 +342,8 @@ function transitionTo(newState) {
       }
     });
   } else if (state === States.REST) {
-    // 3 seconds rest between sets of the same side/action
-    let restDuration = 3;
+    // Read custom rest time from routine, default to 3 seconds
+    let restDuration = currentRoutine.restTime !== undefined ? currentRoutine.restTime : 3;
 
     timeRemaining = restDuration;
     stepDuration = restDuration;

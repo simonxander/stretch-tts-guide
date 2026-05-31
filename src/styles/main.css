@@ -1116,6 +1116,12 @@ p {
   position: relative;
 }
 
+.builder-stretch-item.dragging {
+  opacity: 0.5;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(0.98);
+}
+
 .builder-stretch-item .drag-handle {
   cursor: grab;
   color: var(--text-secondary);

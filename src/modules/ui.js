@@ -34,6 +34,7 @@ export function initUI() {
   setupSettingsDrawer();
   setupWorkoutControls();
   setupHistoryUI();
+  setupBuilderDragAndDrop('builder-stretches-list');
 
   // 註冊 Engine 回呼
   engine.registerCallbacks({
@@ -979,6 +980,8 @@ function resetCreateModalState() {
   if (modalTitle) modalTitle.textContent = '建立自訂伸展流程';
   const form = document.getElementById('form-custom-routine');
   if (form) form.reset();
+  const restTimeInput = document.getElementById('custom-routine-rest-time');
+  if (restTimeInput) restTimeInput.value = '3';
   const list = document.getElementById('builder-stretches-list');
   if (list) {
     list.innerHTML = '';
@@ -1015,6 +1018,7 @@ function resetCreateModalState() {
     `;
     item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
     list.appendChild(item);
+    makeItemDraggable(item);
   }
 }
 
@@ -1041,17 +1045,18 @@ function setupModals() {
     Object.values(modals).forEach((m) => m.classList.remove('active'));
   };
 
-  closeCreateBtn.addEventListener('click', () => {
-    resetCreateModalState();
-    hideModals();
-  });
+  const handleCancelCreate = () => {
+    showConfirmDialog('確定要取消編輯嗎？尚未儲存的變更將會遺失。', () => {
+      resetCreateModalState();
+      hideModals();
+    });
+  };
+
+  closeCreateBtn.addEventListener('click', handleCancelCreate);
   closeImportBtn.addEventListener('click', hideModals);
   closeShareBtn.addEventListener('click', hideModals);
 
-  cancelCreateBtn.addEventListener('click', () => {
-    resetCreateModalState();
-    hideModals();
-  });
+  cancelCreateBtn.addEventListener('click', handleCancelCreate);
   cancelImportBtn.addEventListener('click', hideModals);
   closeShareBtn2.addEventListener('click', hideModals);
 
@@ -1059,8 +1064,9 @@ function setupModals() {
   Object.values(modals).forEach((m) => {
     m.addEventListener('click', (e) => {
       if (e.target === m) {
+        // 編輯時點擊外部不自動關閉，避免誤觸遺失資料
         if (m === modals.create) {
-          resetCreateModalState();
+          return;
         }
         hideModals();
       }
@@ -1149,6 +1155,7 @@ function setupRoutineCreator() {
     });
 
     list.appendChild(item);
+    makeItemDraggable(item);
   };
 
   addStepBtn.addEventListener('click', addStretchStep);
@@ -1239,11 +1246,15 @@ function setupRoutineCreator() {
     const selectedThemeEl = form.querySelector('input[name="routine-theme"]:checked');
     const theme = selectedThemeEl ? selectedThemeEl.value : 'sage';
 
+    const restTimeInput = document.getElementById('custom-routine-rest-time');
+    const restTime = restTimeInput ? parseInt(restTimeInput.value) || 3 : 3;
+
     const newRoutine = {
       id: editingRoutineId || undefined,
       name: routineName,
       description: description,
       theme: theme,
+      restTime: restTime,
       durationText: '',
       steps,
     };
@@ -1307,6 +1318,7 @@ function openEditRoutineModal(routine) {
       `;
       item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
       list.appendChild(item);
+      makeItemDraggable(item);
     });
   }
 
@@ -1318,6 +1330,10 @@ function openEditRoutineModal(routine) {
   if (themeRadio) {
     themeRadio.checked = true;
   }
+
+  // 設定休息時間
+  const restTimeInput = document.getElementById('custom-routine-rest-time');
+  if (restTimeInput) restTimeInput.value = routine.restTime !== undefined ? routine.restTime : 3;
 
   modals.create.classList.add('active');
 }
@@ -1339,6 +1355,7 @@ function openShareModal(routine) {
     n: routine.name,
     d: routine.description,
     t: stretches.getRoutineTheme(routine),
+    rt: routine.restTime !== undefined ? routine.restTime : 3,
     s: routine.steps.map((s) => [
       s.name, // 0
       s.duration, // 1
@@ -1417,6 +1434,7 @@ function handleSharedUrlImport() {
       name: parsed.n,
       description: parsed.d || '',
       theme: parsed.t || 'ocean',
+      restTime: parsed.rt !== undefined ? parsed.rt : 3,
       steps: parsed.s.map((s) => ({
         name: s[0],
         duration: s[1],
@@ -1492,4 +1510,65 @@ function setupMobileLayout() {
   mql.addEventListener('change', handleResize);
   // 初始化時執行一次
   handleResize(mql);
+}
+
+// --- 拖拉排序邏輯 ---
+let draggedItem = null;
+
+function makeItemDraggable(item) {
+  const handle = item.querySelector('.drag-handle');
+  if (!handle) return;
+
+  handle.addEventListener('mousedown', () => item.setAttribute('draggable', 'true'));
+  handle.addEventListener('touchstart', () => item.setAttribute('draggable', 'true'), {
+    passive: true,
+  });
+
+  item.addEventListener('dragend', () => {
+    item.removeAttribute('draggable');
+    item.classList.remove('dragging');
+    draggedItem = null;
+  });
+
+  item.addEventListener('dragstart', (e) => {
+    draggedItem = item;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+}
+
+function setupBuilderDragAndDrop(listId) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+
+  list.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (!draggedItem) return;
+
+    // 支援滑鼠與觸控的 Y 座標
+    const y = e.clientY || (e.touches && e.touches.length > 0 ? e.touches[0].clientY : 0);
+    const afterElement = getDragAfterElement(list, y);
+    if (afterElement == null) {
+      list.appendChild(draggedItem);
+    } else {
+      list.insertBefore(draggedItem, afterElement);
+    }
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.builder-stretch-item:not(.dragging)')];
+
+  return draggableElements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
 }
