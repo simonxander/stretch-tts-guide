@@ -22,7 +22,9 @@ export function saveRecord(routineId, routineName, duration) {
   if (json) {
     try {
       records = JSON.parse(json);
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error parsing history:', e);
+    }
   }
 
   const newRecord = {
@@ -51,7 +53,9 @@ export function deleteRecord(id) {
   if (json) {
     try {
       records = JSON.parse(json);
-    } catch (e) {}
+    } catch (e) {
+      console.error('Error parsing history:', e);
+    }
   }
 
   const idx = records.findIndex((r) => r.id === id);
