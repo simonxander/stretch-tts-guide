@@ -69,7 +69,6 @@ export async function signOut() {
 // Keys to sync
 const SYNC_KEYS = [
   'zenstretch_custom_routines',
-  'zenstretch_tts_settings',
   'zenstretch_hide_presets',
   'zenstretch_workout_history',
 ];
