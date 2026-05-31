@@ -505,7 +505,19 @@ function setupSettingsDrawer() {
 
   // 監聽登入狀態改變
   onAuthChange(async (user) => {
+    const promptPopup = document.getElementById('login-prompt-popup');
+    const closePromptBtn = document.getElementById('btn-close-login-prompt');
+    
+    if (closePromptBtn && !closePromptBtn.dataset.bound) {
+      closePromptBtn.dataset.bound = 'true';
+      closePromptBtn.addEventListener('click', () => {
+        if (promptPopup) promptPopup.style.display = 'none';
+        localStorage.setItem('zenstretch_dismissed_login_prompt', 'true');
+      });
+    }
+
     if (user) {
+      if (promptPopup) promptPopup.style.display = 'none';
       authStatusText.textContent = `已登入：${user.email}`;
       loginBtn.style.display = 'none';
       logoutBtn.style.display = 'inline-block';
@@ -532,6 +544,12 @@ function setupSettingsDrawer() {
       authStatusText.textContent = '尚未登入';
       loginBtn.style.display = 'inline-block';
       logoutBtn.style.display = 'none';
+      
+      if (promptPopup && localStorage.getItem('zenstretch_dismissed_login_prompt') !== 'true') {
+        setTimeout(() => {
+          promptPopup.style.display = 'block';
+        }, 1500);
+      }
     }
   });
 }
