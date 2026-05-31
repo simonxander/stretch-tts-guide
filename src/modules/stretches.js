@@ -181,6 +181,8 @@ export function getAllRoutines() {
   if (customRoutinesJSON) {
     try {
       customRoutines = JSON.parse(customRoutinesJSON);
+      // 過濾掉被標記為刪除的菜單
+      customRoutines = customRoutines.filter(r => !r.isDeleted);
     } catch (e) {
       console.error('Error parsing custom routines from localStorage:', e);
     }
@@ -207,6 +209,7 @@ export function saveCustomRoutine(routine) {
     ...routine,
     id: routine.id || `custom-${Date.now()}`,
     isCustom: true,
+    updatedAt: Date.now() // 加入更新時間戳記，供智慧合併使用
   };
 
   // Replace if exists, else append
@@ -218,6 +221,7 @@ export function saveCustomRoutine(routine) {
   }
 
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customRoutines));
+  import('./firebase.js').then(module => module.syncToCloud());
   return cleanedRoutine;
 }
 
@@ -228,8 +232,14 @@ export function deleteCustomRoutine(id) {
 
   try {
     let customRoutines = JSON.parse(customRoutinesJSON);
-    customRoutines = customRoutines.filter((r) => r.id !== id);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customRoutines));
+    // 不直接刪除，而是加上 isDeleted 標記與更新時間 (Tombstone 機制)
+    const idx = customRoutines.findIndex((r) => r.id === id);
+    if (idx >= 0) {
+      customRoutines[idx].isDeleted = true;
+      customRoutines[idx].updatedAt = Date.now();
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customRoutines));
+      import('./firebase.js').then(module => module.syncToCloud());
+    }
   } catch (e) {
     console.error('Error deleting custom routine:', e);
   }

@@ -299,6 +299,15 @@
 
           <div class="drawer-body">
             <div class="setting-item">
+              <label>雲端同步 (Google 登入)</label>
+              <div id="auth-status-container" class="flex-row" style="margin-top: 0.5rem; justify-content: space-between; align-items: center;">
+                <span id="auth-status-text" class="help-text" style="margin: 0;">尚未登入</span>
+                <button id="btn-google-login" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.9rem;">登入</button>
+                <button id="btn-google-logout" class="btn btn-secondary" style="display: none; padding: 0.25rem 0.75rem; font-size: 0.9rem;">登出</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
               <label for="tts-voice">語音選擇</label>
               <select id="tts-voice" class="input-select">
                 <option value="">載入中...</option>

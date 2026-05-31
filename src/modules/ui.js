@@ -3,6 +3,7 @@ import * as stretches from './stretches.js';
 import * as engine from './engine.js';
 import * as tts from './tts.js';
 import { getAnimationSVG } from './animations.js';
+import { signIn, signOut, onAuthChange, syncFromCloud } from './firebase.js';
 
 // DOM 節點選擇器
 const screens = {
@@ -67,6 +68,11 @@ export function initUI() {
     hidePresetsCheckbox.addEventListener('change', (e) => {
       localStorage.setItem('zenstretch_hide_presets', e.target.checked);
       renderRoutinesList();
+      
+      // 動態載入並觸發同步
+      import('./firebase.js').then(module => {
+        module.syncToCloud();
+      });
     });
   }
 
@@ -475,6 +481,59 @@ function setupSettingsDrawer() {
   volVal.textContent = `${Math.round(tts.getVolume() * 100)}%`;
 
   sfxToggle.checked = tts.getSoundEffectsEnabled();
+
+  // 綁定 Google 登入/登出按鈕
+  const loginBtn = document.getElementById('btn-google-login');
+  const logoutBtn = document.getElementById('btn-google-logout');
+  const authStatusText = document.getElementById('auth-status-text');
+
+  loginBtn.addEventListener('click', async () => {
+    try {
+      await signIn();
+    } catch (e) {
+      console.error('Login failed', e);
+    }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut();
+    } catch (e) {
+      console.error('Logout failed', e);
+    }
+  });
+
+  // 監聽登入狀態改變
+  onAuthChange(async (user) => {
+    if (user) {
+      authStatusText.textContent = `已登入：${user.email}`;
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      
+      // 登入成功後，嘗試從雲端下載最新資料並覆蓋本地
+      const hasUpdates = await syncFromCloud();
+      if (hasUpdates) {
+        // 更新畫面上的狀態
+        renderRoutinesList();
+        
+        // 更新 TTS 設定與隱藏預設開關的顯示狀態
+        const hidePresetsCheckbox = document.getElementById('toggle-hide-presets');
+        if (hidePresetsCheckbox) {
+          hidePresetsCheckbox.checked = localStorage.getItem('zenstretch_hide_presets') === 'true';
+        }
+        
+        rateSlider.value = tts.getRate();
+        rateVal.textContent = `${tts.getRate()}x`;
+        volSlider.value = tts.getVolume();
+        volVal.textContent = `${Math.round(tts.getVolume() * 100)}%`;
+        sfxToggle.checked = tts.getSoundEffectsEnabled();
+      }
+    } else {
+      authStatusText.textContent = '尚未登入';
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+    }
+  });
 }
 
 function populateVoiceDropdown(voices, currentVoice) {
