@@ -31,6 +31,7 @@ export function initUI() {
   setupWorkoutControls();
   setupModals();
   setupRoutineCreator();
+  setupMobileLayout();
 
   // 初始化語音選擇器
   tts.initTTS(populateVoiceDropdown);
@@ -1027,4 +1028,29 @@ function escapeHTML(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// 動態調整手機版操作區塊位置
+function setupMobileLayout() {
+  const mql = window.matchMedia('(max-width: 600px)');
+  const infoPanel = document.querySelector('.info-panel');
+  const controls = document.querySelector('.workout-controls');
+  const infoCard = document.querySelector('.stretch-info-card');
+
+  if (!infoPanel || !controls || !infoCard) return;
+
+  const handleResize = (e) => {
+    if (e.matches) {
+      // 在小螢幕下，將操作區塊移到文字區塊前面
+      infoPanel.insertBefore(controls, infoCard);
+    } else {
+      // 在大螢幕下，將操作區塊移到最後
+      infoPanel.appendChild(controls);
+    }
+  };
+
+  // 監聽螢幕寬度變化
+  mql.addEventListener('change', handleResize);
+  // 初始化時執行一次
+  handleResize(mql);
 }
