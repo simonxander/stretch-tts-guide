@@ -380,9 +380,6 @@ function handleEngineStateChange(state, details) {
 }
 
 function handleEngineTick(timeRemaining, percent) {
-  if (engine.getState() === engine.States.EXPLANATION) {
-    return;
-  }
   const countdownEl = document.getElementById('timer-countdown');
   if (countdownEl) countdownEl.textContent = timeRemaining;
 

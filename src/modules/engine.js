@@ -19,8 +19,9 @@ let stepDuration = 0;
 let totalTimeElapsed = 0;
 
 let timerInterval = null;
-let breathingState = 'prepare'; // 'inhale', 'exhale', 'prepare', 'rest'
-let breathingTime = 0; // seconds inside the current breath
+let breathingState = 'inhale'; // 'inhale', 'exhale', 'prepare', 'rest'
+let breathingTime = 0; // 0-7 (4s inhale, 4s exhale)
+let isWaitingForTTS = false;
 
 // Callbacks registered by UI
 let callbacks = {
@@ -176,7 +177,9 @@ export function resumeWorkout() {
   if (timerInterval) return; // already running
 
   tts.resumeSpeaking();
-  startTimerLoop();
+  if (!isWaitingForTTS) {
+    startTimerLoop();
+  }
 }
 
 // Stop/Quit workout
@@ -287,7 +290,7 @@ function transitionTo(newState) {
   const currentStep = getCurrentStep();
   const nextStep = getNextStep();
 
-  let delayTimerLoop = false;
+  isWaitingForTTS = false;
 
   if (state === States.PREPARE) {
     timeRemaining = 10;
@@ -302,8 +305,8 @@ function transitionTo(newState) {
       tts.speak(`開始伸展流程：${currentRoutine.name}。請準備。`);
     }
   } else if (state === States.EXPLANATION) {
-    timeRemaining = 0;
-    stepDuration = 0;
+    timeRemaining = 5;
+    stepDuration = 5;
     breathingState = 'prepare';
 
     // Play transition chime
@@ -320,9 +323,11 @@ function transitionTo(newState) {
         ? `${relaxationText}。${explanationText}`
         : explanationText;
 
+      isWaitingForTTS = true;
       tts.speak(finalSpeakText, () => {
-        if (state === States.EXPLANATION) {
-          transitionTo(States.STRETCHING); // Transition directly to stretching!
+        isWaitingForTTS = false;
+        if (state === States.EXPLANATION && !timerInterval) {
+          startTimerLoop();
         }
       });
     }
@@ -335,8 +340,9 @@ function transitionTo(newState) {
     // Play chime
     tts.playChime(659.25, 'sine', 0.4); // E5 note
 
-    delayTimerLoop = true;
+    isWaitingForTTS = true;
     tts.speak('開始。', () => {
+      isWaitingForTTS = false;
       if (state === States.STRETCHING && !timerInterval) {
         startTimerLoop();
       }
@@ -360,8 +366,9 @@ function transitionTo(newState) {
       ? `${relaxationText}。${restAnnouncement}`
       : restAnnouncement;
 
-    delayTimerLoop = true;
+    isWaitingForTTS = true;
     tts.speak(finalSpeakText, () => {
+      isWaitingForTTS = false;
       if (state === States.REST && !timerInterval) {
         startTimerLoop();
       }
@@ -404,12 +411,12 @@ function transitionTo(newState) {
   }
 
   // Trigger warning beep if duration is exactly 3 seconds
-  if (timeRemaining === 3 && !delayTimerLoop) {
+  if (timeRemaining === 3 && !isWaitingForTTS) {
     tts.playChime(523.25, 'triangle', 0.1);
   }
 
   // Start the timer loop conditionally
-  if (!delayTimerLoop) {
+  if (!isWaitingForTTS) {
     startTimerLoop();
   }
 }
@@ -425,10 +432,6 @@ function startTimerLoop() {
 function tick() {
   if (state === States.IDLE || state === States.COMPLETED) {
     clearInterval(timerInterval);
-    return;
-  }
-
-  if (state === States.EXPLANATION) {
     return;
   }
 
@@ -492,6 +495,8 @@ function handlePhaseExpiry() {
   if (state === States.PREPARE) {
     currentStepIndex = 0;
     transitionTo(States.EXPLANATION);
+  } else if (state === States.EXPLANATION) {
+    transitionTo(States.STRETCHING);
   } else if (state === States.STRETCHING) {
     if (currentStepIndex < currentRoutine.steps.length - 1) {
       const currentStep = currentRoutine.steps[currentStepIndex];
