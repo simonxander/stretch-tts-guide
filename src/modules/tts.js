@@ -10,19 +10,22 @@ let currentVolume = 1.0;
 let currentPitch = 1.0;
 let soundEffectsEnabled = true;
 
+// 由於 iOS (Safari/Chrome) 對 Web Audio API 限制很嚴格，
+// 必須在使用者點擊事件中建立或解鎖唯一的 AudioContext
+let audioCtx = null;
+
 // Active utterance reference
 let activeUtterance = null;
 let isSpeakingState = false;
 
 // Replay state tracking
-let lastSpokenText = '';
-let lastOnFinishedCallback = null;
 let wasPausedWhileSpeaking = false;
+let lastSpokenText = null;
+let lastOnFinishedCallback = null;
 
 // Callbacks
 let globalOnStart = null;
 let globalOnEnd = null;
-
 // Initialize settings from LocalStorage
 function loadSettings() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -164,35 +167,55 @@ export function speak(text, onFinishedCallback = null) {
   window.speechSynthesis.speak(utterance);
 }
 
+// 在使用者點擊事件 (如開始/恢復) 中呼叫此函數解鎖音效引擎
+export function initAudio() {
+  if (typeof window === 'undefined' || (!window.AudioContext && !window.webkitAudioContext)) return;
+
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+  }
+
+  // 解鎖：如果是 suspended 狀態則嘗試 resume，並播放極短的無聲音頻
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0; // 無聲
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(0);
+  osc.stop(audioCtx.currentTime + 0.01);
+}
+
 // Play Sound Effect (Chimes / Beeps) using Web Audio API
 export function playChime(frequency = 587.33, type = 'sine', duration = 0.5) {
   // D5 note
   if (!soundEffectsEnabled) return;
-  if (typeof window === 'undefined' || (!window.AudioContext && !window.webkitAudioContext)) return;
+  if (!audioCtx) initAudio(); // fallback
 
   try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioContextClass();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(audioCtx.destination);
 
     osc.type = type;
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
 
     // Smooth envelope decay to avoid clicks
-    gain.gain.setValueAtTime(currentVolume * 0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    gain.gain.setValueAtTime(currentVolume * 0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
-
-    // Clean up AudioContext to avoid hardware limit errors in browser
-    osc.onended = () => {
-      ctx.close();
-    };
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + duration);
   } catch (err) {
     console.error('Error playing sound chime:', err);
   }
