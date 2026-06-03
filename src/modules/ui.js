@@ -128,8 +128,8 @@ function renderRoutinesList() {
     const meta = document.createElement('div');
     meta.className = 'routine-meta';
     meta.innerHTML = `
-      <div class="routine-meta-item">⏱️ ${escapeHTML(routine.durationText || calculateDurationText(routine))}</div>
-      <div class="routine-meta-item">🧘 ${routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0)} 個步驟</div>
+      <div class="routine-meta-item"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${escapeHTML(routine.durationText || calculateDurationText(routine))}</div>
+      <div class="routine-meta-item"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="margin-right: 4px;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>${routine.steps.reduce((sum, s) => sum + (s.repeat || 1) * (s.bilateral ? 2 : 1), 0)} 個步驟</div>
     `;
     footer.appendChild(meta);
 
@@ -140,7 +140,8 @@ function renderRoutinesList() {
     const shareBtn = document.createElement('button');
     shareBtn.className = 'routine-action-btn';
     shareBtn.title = '分享此流程';
-    shareBtn.innerHTML = '📤';
+    shareBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>';
     shareBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       openShareModal(routine);
@@ -153,7 +154,8 @@ function renderRoutinesList() {
       const editBtn = document.createElement('button');
       editBtn.className = 'routine-action-btn';
       editBtn.title = '編輯此流程';
-      editBtn.innerHTML = '✏️';
+      editBtn.innerHTML =
+        '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
       editBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         openEditRoutineModal(routine);
@@ -164,7 +166,8 @@ function renderRoutinesList() {
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'routine-action-btn';
       deleteBtn.title = '刪除此流程';
-      deleteBtn.innerHTML = '🗑️';
+      deleteBtn.innerHTML =
+        '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
       deleteBtn.style.color = 'var(--danger-color)';
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -178,7 +181,8 @@ function renderRoutinesList() {
 
     const startBtn = document.createElement('div');
     startBtn.className = 'routine-start-btn';
-    startBtn.innerHTML = '▶';
+    startBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
     actions.appendChild(startBtn);
 
     footer.appendChild(actions);
@@ -1007,7 +1011,7 @@ function resetCreateModalState() {
     const item = document.createElement('div');
     item.className = 'builder-stretch-item';
     item.innerHTML = `
-      <span class="drag-handle">☰</span>
+      <span class="drag-handle"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" style="pointer-events: none;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></span>
       <div class="form-inputs-container">
         <!-- 第一行：動作名稱 -->
         <div class="form-inputs-row">
@@ -1032,7 +1036,7 @@ function resetCreateModalState() {
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
         </div>
       </div>
-      <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
+      <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     `;
     item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
     list.appendChild(item);
@@ -1210,7 +1214,7 @@ function setupRoutineCreator() {
     const item = document.createElement('div');
     item.className = 'builder-stretch-item';
     item.innerHTML = `
-      <span class="drag-handle">☰</span>
+      <span class="drag-handle"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" style="pointer-events: none;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></span>
       <div class="form-inputs-container">
         <!-- 第一行：動作名稱 -->
         <div class="form-inputs-row">
@@ -1235,7 +1239,7 @@ function setupRoutineCreator() {
           <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2"></textarea>
         </div>
       </div>
-      <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
+      <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     `;
 
     item.querySelector('.remove-step-btn').addEventListener('click', () => {
@@ -1375,7 +1379,7 @@ function openEditRoutineModal(routine) {
       const item = document.createElement('div');
       item.className = 'builder-stretch-item';
       item.innerHTML = `
-        <span class="drag-handle">☰</span>
+        <span class="drag-handle"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" style="pointer-events: none;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></span>
         <div class="form-inputs-container">
           <!-- 第一行：動作名稱 -->
           <div class="form-inputs-row">
@@ -1400,7 +1404,7 @@ function openEditRoutineModal(routine) {
             <textarea class="input-textarea-field stretch-desc" placeholder="動作說明 (選填，可分行輸入多個指引)" rows="2">${escapeHTML(step.description || '')}</textarea>
           </div>
         </div>
-        <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);">✖</button>
+        <button type="button" class="routine-action-btn remove-step-btn" title="移除動作" style="color: var(--danger-color);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       `;
       item.querySelector('.remove-step-btn').addEventListener('click', () => item.remove());
       list.appendChild(item);
