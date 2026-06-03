@@ -29,6 +29,31 @@ const TIMER_RING_DASHARRAY = 282.7; // 2 * Math.PI * 45
 
 // 自訂流程編輯中的 ID
 let editingRoutineId = null;
+let initialFormState = null;
+
+function getCurrentFormState() {
+  const name = document.getElementById('custom-routine-name')?.value.trim() || '';
+  const desc = document.getElementById('custom-routine-desc')?.value.trim() || '';
+  const form = document.getElementById('form-custom-routine');
+  const theme = form?.querySelector('input[name="routine-theme"]:checked')?.value || 'blue';
+  const restTime = document.getElementById('custom-routine-rest-time')?.value || '5';
+
+  const steps = [];
+  const list = document.getElementById('builder-stretches-list');
+  if (list) {
+    const items = list.querySelectorAll('.builder-stretch-item');
+    items.forEach((item) => {
+      steps.push({
+        name: item.querySelector('.stretch-name')?.value.trim() || '',
+        duration: item.querySelector('.stretch-duration')?.value || '',
+        repeat: item.querySelector('.stretch-repeat')?.value || '',
+        bilateral: item.querySelector('.stretch-bilateral')?.checked || false,
+        desc: item.querySelector('.stretch-desc')?.value.trim() || '',
+      });
+    });
+  }
+  return JSON.stringify({ name, desc, theme, restTime, steps });
+}
 
 // 初始化 UI
 export function initUI() {
@@ -1168,7 +1193,10 @@ function setupModals() {
   const cancelAiBtn = document.getElementById('btn-cancel-ai-import');
 
   // 開啟視窗
-  createBtn.addEventListener('click', () => modals.create.classList.add('active'));
+  createBtn.addEventListener('click', () => {
+    initialFormState = getCurrentFormState();
+    modals.create.classList.add('active');
+  });
   importBtn.addEventListener('click', () => modals.import.classList.add('active'));
   if (createAiBtn) {
     createAiBtn.addEventListener('click', () => {
@@ -1185,6 +1213,11 @@ function setupModals() {
   };
 
   const handleCancelCreate = () => {
+    if (initialFormState === getCurrentFormState()) {
+      resetCreateModalState();
+      hideModals();
+      return;
+    }
     showConfirmDialog('確定要取消編輯嗎？尚未儲存的變更將會遺失。', () => {
       resetCreateModalState();
       hideModals();
@@ -1532,6 +1565,7 @@ function openEditRoutineModal(routine) {
   const restTimeInput = document.getElementById('custom-routine-rest-time');
   if (restTimeInput) restTimeInput.value = routine.restTime !== undefined ? routine.restTime : 5;
 
+  initialFormState = getCurrentFormState();
   modals.create.classList.add('active');
 }
 
