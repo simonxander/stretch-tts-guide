@@ -1473,7 +1473,14 @@ function setupRoutineCreator() {
       // 自動生成繁體中文語音播報 timeline
       const ttsCues = [{ time: 0, text: `${name}。${ttsText}` }];
 
-      if (duration >= 15) {
+      if (duration >= 60) {
+        const q1 = Math.floor(duration / 4);
+        const q2 = Math.floor(duration / 2);
+        const q3 = Math.floor((duration * 3) / 4);
+        ttsCues.push({ time: q1, text: `保持呼吸。` });
+        ttsCues.push({ time: q2, text: `時間過半，請保持深長呼吸。` });
+        ttsCues.push({ time: q3, text: `保持呼吸。` });
+      } else if (duration >= 15) {
         const midpoint = Math.floor(duration / 2);
         ttsCues.push({ time: midpoint, text: `時間過半，請保持深長呼吸。` });
       }

@@ -454,9 +454,24 @@ function tick() {
       const elapsed = currentStep.duration - timeRemaining;
 
       // Look for matches in the cue script list
-      const cue = currentStep.ttsCues.find((c) => c.time === elapsed);
+      const cue = currentStep.ttsCues && currentStep.ttsCues.find((c) => c.time === elapsed);
       if (cue) {
         tts.speak(cue.text);
+      } else {
+        // 動態補充語音提示（針對沒有自帶提示的舊有流程或內建流程）
+        if (currentStep.duration >= 60) {
+          if (elapsed === Math.floor(currentStep.duration / 4)) {
+            tts.speak('保持呼吸。');
+          } else if (elapsed === Math.floor((currentStep.duration * 3) / 4)) {
+            tts.speak('保持呼吸。');
+          } else if (elapsed === Math.floor(currentStep.duration / 2)) {
+            tts.speak('時間過半，請保持深長呼吸。');
+          }
+        } else if (currentStep.duration >= 15) {
+          if (elapsed === Math.floor(currentStep.duration / 2)) {
+            tts.speak('時間過半，請保持深長呼吸。');
+          }
+        }
       }
     }
   }
