@@ -55,6 +55,16 @@ function getCurrentFormState() {
   return JSON.stringify({ name, desc, theme, restTime, steps });
 }
 
+function setupModalScrollLock() {
+  const observer = new MutationObserver(() => {
+    const hasActive = document.querySelector('.modal-overlay.active, .drawer.active') !== null;
+    document.body.style.overflow = hasActive ? 'hidden' : '';
+  });
+
+  const config = { attributes: true, attributeFilter: ['class'] };
+  document.querySelectorAll('.modal-overlay, .drawer').forEach(el => observer.observe(el, config));
+}
+
 // 初始化 UI
 export function initUI() {
   setupThemeToggle();
@@ -62,6 +72,7 @@ export function initUI() {
   setupWorkoutControls();
   setupHistoryUI();
   setupBuilderDragAndDrop('builder-stretches-list');
+  setupModalScrollLock();
 
   // 註冊 Engine 回呼
   engine.registerCallbacks({
