@@ -1,5 +1,7 @@
 # ZenStretch
 
+[https://simonxander.github.io/stretch-tts-guide/](https://simonxander.github.io/stretch-tts-guide/)
+
 ZenStretch 是一個基於純 JavaScript (Vanilla JS) 打造的輕量級、具備語音引導 (TTS) 功能的伸展運動 Web App。旨在提供流暢的自訂伸展菜單建立、語音指引、以及運動紀錄追蹤。
 
 ## ✨ 核心功能
